@@ -1,0 +1,43 @@
+name: Release
+on:
+  push:
+    branches:
+      - default
+defaults:
+  run:
+    shell: pwsh
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: GitVersion
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          dotnet tool install -g GitVersion.Tool
+          (dotnet-gitversion /nofetch | ConvertFrom-Json).PSObject.Properties | ForEach-Object {
+            "GITVERSION_$($_.Name.ToUpper())=$($_.Value)" | Out-File $env:GITHUB_ENV -Append
+          }
+      - name: ".NET CLI: Restore"
+        run: dotnet restore
+      - name: ".NET CLI: Build"
+        run: dotnet build -c Release --no-restore "-p:Version=$($env:GITVERSION_FULLSEMVER)" "-p:FileVersion=$($env:GITVERSION_ASSEMBLYSEMFILEVER)"
+      - name: ".NET CLI: Test"
+        run: dotnet test -c Release --no-build -l trx --collect:"XPlat Code Coverage" -r "$env:RUNNER_TEMP/dotnet-test"
+      - name: ".NET CLI: Pack"
+        run: dotnet pack -c Release --no-build "-p:Version=$($env:GITVERSION_FULLSEMVER)" --include-symbols -p:SymbolPackageFormat=snupkg -o "$env:RUNNER_TEMP/dotnet-pack"
+      - name: "Upload Artifact: Tests"
+        uses: actions/upload-artifact@v3
+        with:
+          name: TestResults
+          path: ${{ runner.temp }}/dotnet-test
+          if-no-files-found: error
+      - name: "Upload Artifact: Packages"
+        uses: actions/upload-artifact@v3
+        with:
+          name: Packages
+          path: ${{ runner.temp }}/dotnet-pack
+          if-no-files-found: error

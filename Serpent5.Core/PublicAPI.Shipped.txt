@@ -1,0 +1,3 @@
+#nullable enable
+static System.ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(string? inputValue, string? nameofInputValue = null) -> void
+System.ArgumentExceptionExtensions
