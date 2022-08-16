@@ -3,12 +3,8 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
-    <Copyright>Copyright © Kirk Larkin 2022</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageIcon>serpent5.png</PackageIcon>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/serpent5/Serpent5.DotNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
