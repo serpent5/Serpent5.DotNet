@@ -18,6 +18,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Serpent5.Core\Serpent5.Core.csproj" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.Production.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Serpent5.AspNetCore\Serpent5.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

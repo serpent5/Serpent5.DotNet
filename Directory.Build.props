@@ -1,6 +1,10 @@
 <Project>
   <PropertyGroup>
     <Authors>Kirk Larkin</Authors>
+    <Copyright>Copyright © $(Authors) 2022</Copyright>
+    <PackageIcon>serpent5.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/serpent5/Serpent5.DotNet</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup>
     <ImplicitUsings>true</ImplicitUsings>
