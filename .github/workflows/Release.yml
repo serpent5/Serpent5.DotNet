@@ -18,9 +18,13 @@ jobs:
           $ErrorActionPreference = 'Stop'
 
           dotnet tool install -g GitVersion.Tool
-          (dotnet-gitversion /nofetch | ConvertFrom-Json).PSObject.Properties | ForEach-Object {
+
+          $gitVersionVariables = dotnet-gitversion /nofetch | ConvertFrom-Json
+          $gitVersionVariables.PSObject.Properties | ForEach-Object {
             "GITVERSION_$($_.Name.ToUpper())=$($_.Value)" | Out-File $env:GITHUB_ENV -Append
           }
+
+          Write-Host "::notice::v$($gitVersionVariables.FullSemVer)"
       - name: ".NET CLI: Restore"
         run: dotnet restore
       - name: ".NET CLI: Build"
