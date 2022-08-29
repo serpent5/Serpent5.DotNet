@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace Serpent5.AspNetCore.Tests;
+namespace Serpent5.Extensions.Configuration.Tests;
 
 public class ConfigurationBuilderExtensionsTests
 {

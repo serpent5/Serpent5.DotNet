@@ -1,2 +1,0 @@
-Microsoft.Extensions.Configuration.ConfigurationBuilderExtensions
-static Microsoft.Extensions.Configuration.ConfigurationBuilderExtensions.AddHostingDefaults(this Microsoft.Extensions.Configuration.IConfigurationBuilder! configurationBuilder, string![]? args = null) -> Microsoft.Extensions.Configuration.IConfigurationBuilder!

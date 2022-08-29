@@ -1,20 +1,18 @@
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.Configuration;
 
 /// <summary>
-/// Extension methods for adding configuration sources that mimic the defaults set up by <see cref="Host" />, <see cref="WebHost"/>, and <see cref="WebApplication" />.
+/// Extension methods for adding configuration sources that mimic the defaults set up by <c>Host</c>, <c>WebHost</c>, and <c>WebApplication</c>.
 /// </summary>
 [PublicAPI]
 public static class ConfigurationBuilderExtensions
 {
     /// <summary>
-    /// Adds a set of <see cref="IConfigurationProvider" />s to mimic the default app configuration set up by <see cref="Host" />, <see cref="WebHost"/>, and <see cref="WebApplication" />.
+    /// Adds a set of <see cref="IConfigurationProvider" />s to mimic the default app configuration set up by <c>Host</c>, <c>WebHost</c>, and <c>WebApplication</c>.
     /// </summary>
     /// <param name="configurationBuilder">The <see cref="IConfigurationBuilder" /> to add to.</param>
     /// <param name="args">The command-line arguments.</param>

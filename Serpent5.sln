@@ -26,6 +26,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serpent5.AspNetCore", "Serp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serpent5.AspNetCore.Tests", "Serpent5.AspNetCore.Tests\Serpent5.AspNetCore.Tests.csproj", "{B775EE39-7B6C-43E8-8453-2B1CF6EF6E9D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serpent5.Extensions", "Serpent5.Extensions\Serpent5.Extensions.csproj", "{B805E19D-E806-459C-A6EF-C287AECCA712}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serpent5.Extensions.Tests", "Serpent5.Extensions.Tests\Serpent5.Extensions.Tests.csproj", "{6A816529-C228-4052-809D-8C05F71079DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +52,14 @@ Global
 		{B775EE39-7B6C-43E8-8453-2B1CF6EF6E9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B775EE39-7B6C-43E8-8453-2B1CF6EF6E9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B775EE39-7B6C-43E8-8453-2B1CF6EF6E9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B805E19D-E806-459C-A6EF-C287AECCA712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B805E19D-E806-459C-A6EF-C287AECCA712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B805E19D-E806-459C-A6EF-C287AECCA712}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B805E19D-E806-459C-A6EF-C287AECCA712}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A816529-C228-4052-809D-8C05F71079DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A816529-C228-4052-809D-8C05F71079DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A816529-C228-4052-809D-8C05F71079DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A816529-C228-4052-809D-8C05F71079DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
