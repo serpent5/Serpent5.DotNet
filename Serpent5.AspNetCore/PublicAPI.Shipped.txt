@@ -1,0 +1,3 @@
+#nullable enable
+Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions
+static Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions.UseCacheResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!

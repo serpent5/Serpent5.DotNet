@@ -1,3 +1,5 @@
 #nullable enable
 static System.ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(string? inputValue, string? nameofInputValue = null) -> void
+static System.Security.Claims.ClaimsPrincipalExtensions.GetNameIdentifier(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string!
 System.ArgumentExceptionExtensions
+System.Security.Claims.ClaimsPrincipalExtensions

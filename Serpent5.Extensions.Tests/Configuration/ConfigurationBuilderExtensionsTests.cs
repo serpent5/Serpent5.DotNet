@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace Serpent5.Extensions.Configuration.Tests;
+namespace Serpent5.Extensions.Tests.Configuration;
 
 public class ConfigurationBuilderExtensionsTests
 {

@@ -1,2 +1,0 @@
-static System.Security.Claims.ClaimsPrincipalExtensions.GetNameIdentifier(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string!
-System.Security.Claims.ClaimsPrincipalExtensions
