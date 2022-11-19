@@ -1,3 +1,5 @@
 #nullable enable
 Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions
+Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
 static Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions.UseCacheResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions.UseSecureResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!

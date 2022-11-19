@@ -7,6 +7,7 @@
     <RepositoryUrl>https://github.com/serpent5/Serpent5.DotNet</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

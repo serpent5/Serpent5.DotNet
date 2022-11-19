@@ -1,5 +1,5 @@
 using JetBrains.Annotations;
-using Serpent5.AspNetCore.Middleware.CacheResponseHeaders;
+using Serpent5.AspNetCore.Middleware;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;

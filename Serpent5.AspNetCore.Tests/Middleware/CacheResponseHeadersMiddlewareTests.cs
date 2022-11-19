@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Net.Http.Headers;
 
-namespace Serpent5.AspNetCore.Tests.Middleware.CacheResponseHeaders;
+namespace Serpent5.AspNetCore.Tests.Middleware;
 
 public class CacheResponseHeadersMiddlewareTests
 {
