@@ -35,7 +35,7 @@ jobs:
       - name: ".NET CLI: Build"
         run: dotnet build -c Release --no-restore "-p:Version=$($env:GITVERSION_FULLSEMVER)" "-p:FileVersion=$($env:GITVERSION_ASSEMBLYSEMFILEVER)"
       - name: ".NET CLI: Test"
-        run: dotnet test -c Release --no-build -l trx --collect:"XPlat Code Coverage" -r "$env:RUNNER_TEMP/dotnet-test"
+        run: dotnet test -c Release --no-build -l trx --collect:"XPlat Code Coverage" --results-directory "$env:RUNNER_TEMP/dotnet-test"
       - name: ".NET CLI: Pack"
         run: dotnet pack -c Release --no-build "-p:Version=$($env:GITVERSION_FULLSEMVER)" --include-symbols -p:SymbolPackageFormat=snupkg -o "$env:RUNNER_TEMP/dotnet-pack"
       - name: "Upload Artifact: Tests"
