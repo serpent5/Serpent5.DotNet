@@ -6,7 +6,7 @@ using Microsoft.Net.Http.Headers;
 namespace Serpent5.AspNetCore.Middleware;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
-internal class CacheResponseHeadersMiddleware
+internal sealed class CacheResponseHeadersMiddleware
 {
     private readonly RequestDelegate nextMiddleware;
 

@@ -8,7 +8,7 @@ using Microsoft.Net.Http.Headers;
 namespace Serpent5.AspNetCore.Middleware;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
-internal class SecureResponseHeadersMiddleware
+internal sealed class SecureResponseHeadersMiddleware
 {
     private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new(MediaTypeNames.Text.Html);
 
@@ -48,14 +48,13 @@ internal class SecureResponseHeadersMiddleware
 
             httpResponse.Headers["Content-Security-Policy"] = cspBuilder.ToString();
 
+            // https://github.com/w3c/webappsec-permissions-policy/blob/main/features.md
             httpResponseHeaders["Permissions-Policy"] =
-                // https://github.com/w3c/webappsec-permissions-policy/blob/main/features.md
                 "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()";
 
             httpResponseHeaders["Referrer-Policy"] = "strict-origin-when-cross-origin";
 
             return Task.CompletedTask;
-
         }, httpContext);
 
         return nextMiddleware(httpContext);

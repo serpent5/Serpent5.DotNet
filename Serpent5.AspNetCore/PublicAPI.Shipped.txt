@@ -1,5 +1,16 @@
 #nullable enable
 Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions
 Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
+Microsoft.AspNetCore.Mvc.NoneResult
+Microsoft.AspNetCore.Mvc.NoneResult.ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext! ctx) -> System.Threading.Tasks.Task!
+Microsoft.AspNetCore.Mvc.NoneResult.NoneResult() -> void
+override Serpent5.AspNetCore.ScriptNonceTagHelper.Process(Microsoft.AspNetCore.Razor.TagHelpers.TagHelperContext! ctx, Microsoft.AspNetCore.Razor.TagHelpers.TagHelperOutput! tagHelperOutput) -> void
+Serpent5.AspNetCore.Controllers.StatusCodesController
+Serpent5.AspNetCore.Controllers.StatusCodesController.Index(int statusCode) -> System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult!>!
+Serpent5.AspNetCore.Controllers.StatusCodesController.StatusCodesController(Microsoft.AspNetCore.Hosting.IWebHostEnvironment! webHostEnvironment, Microsoft.Extensions.Caching.Memory.IMemoryCache! memoryCache, Yarp.ReverseProxy.Forwarder.IHttpForwarder? httpForwarder = null, Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine? compositeViewEngine = null) -> void
+Serpent5.AspNetCore.ScriptNonceTagHelper
+Serpent5.AspNetCore.ScriptNonceTagHelper.ScriptNonceTagHelper() -> void
+Serpent5.AspNetCore.ScriptNonceTagHelper.ViewContext.get -> Microsoft.AspNetCore.Mvc.Rendering.ViewContext!
+Serpent5.AspNetCore.ScriptNonceTagHelper.ViewContext.set -> void
 static Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions.UseCacheResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
 static Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions.UseSecureResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!

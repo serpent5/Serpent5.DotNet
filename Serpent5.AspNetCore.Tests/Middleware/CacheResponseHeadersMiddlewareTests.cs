@@ -7,126 +7,112 @@ namespace Serpent5.AspNetCore.Tests.Middleware;
 
 public class CacheResponseHeadersMiddlewareTests
 {
-    private readonly DateTimeOffset anyDateTimeOffset = DateTimeOffset.Now;
+    private static readonly DateTimeOffset anyDateTimeOffset = DateTimeOffset.MinValue;
+    private const string anyETag = "*";
 
     [Fact]
-    public async Task SetsCacheControlValueToNoStore()
+    public async Task SetsCacheControlToNoStore()
     {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync();
+        var httpResponseMessage = await RunMiddlewarePipelineAsync();
 
         Assert.Equal("no-store", httpResponseMessage.Headers.CacheControl?.ToString());
     }
 
     [Fact]
-    public async Task DoesNotChangeExistingCacheControlValue()
+    public async Task CacheControlIsSet_DoesNotSetCacheControlToNoStore()
     {
-        const string anyValidCacheControlValueExceptNoStore = "public, no-cache";
+        const string anyUnaffectedCacheControlValue = "public, no-cache";
 
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(static ctx =>
-        {
-            ctx.Response.Headers.CacheControl = anyValidCacheControlValueExceptNoStore;
-        });
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(
+            static ctx => ctx.Response.Headers.CacheControl = anyUnaffectedCacheControlValue);
 
-        Assert.Equal(anyValidCacheControlValueExceptNoStore, httpResponseMessage.Headers.CacheControl?.ToString());
+        Assert.Equal(anyUnaffectedCacheControlValue, httpResponseMessage.Headers.CacheControl?.ToString());
     }
 
     [Fact]
-    public async Task ChangesCacheControlValueToNoStoreWhenSetToNoCacheNoStore()
+    public async Task CacheControlIsSetToNoCacheNoStore_SetsCacheControlToNoStore()
     {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(static ctx =>
-        {
-            ctx.Response.Headers.CacheControl = "no-cache, no-store";
-        });
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(
+            static ctx => ctx.Response.Headers.CacheControl = "no-cache, no-store");
 
         Assert.Equal("no-store", httpResponseMessage.Headers.CacheControl?.ToString());
     }
 
     [Fact]
-    public async Task RemovesETagWhenCacheControlIsImmutable()
+    public async Task CacheControlIsImmutable_RemovesETag()
     {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(ctx =>
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(static ctx =>
         {
+            ctx.Response.Headers.ETag = anyETag;
             ctx.Response.Headers.CacheControl = "immutable";
-
-            var httpResponseHeaders = ctx.Response.GetTypedHeaders();
-
-            httpResponseHeaders.ETag = EntityTagHeaderValue.Any;
-            httpResponseHeaders.LastModified = anyDateTimeOffset;
         });
 
         Assert.False(httpResponseMessage.Headers.Contains(HeaderNames.ETag));
     }
 
     [Fact]
-    public async Task RemovesLastModifiedWhenETagIsSet()
+    public async Task CacheControlIsImmutable_RemovesLastModified()
     {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(ctx =>
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(static ctx =>
         {
-            var httpResponseHeaders = ctx.Response.GetTypedHeaders();
-
-            httpResponseHeaders.ETag = EntityTagHeaderValue.Any;
-            httpResponseHeaders.LastModified = anyDateTimeOffset;
+            ctx.Response.GetTypedHeaders().LastModified = anyDateTimeOffset;
+            ctx.Response.Headers.CacheControl = "immutable";
         });
 
-        Assert.Null(httpResponseMessage.Content.Headers.LastModified);
+        Assert.False(httpResponseMessage.Content.Headers.Contains(HeaderNames.LastModified));
     }
 
     [Fact]
-    public async Task DoesNotRemoveLastModifiedWhenTagIsNotSet()
+    public async Task ETagIsSet_RemovesLastModified()
     {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(ctx =>
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(static ctx =>
         {
-            ctx.Response.GetTypedHeaders().LastModified = anyDateTimeOffset;
+            ctx.Response.Headers.ETag = anyETag;
+            ctx.Response.Headers.LastModified = anyDateTimeOffset.ToString("R");
         });
 
-        Assert.NotNull(httpResponseMessage.Content.Headers.LastModified);
+        Assert.False(httpResponseMessage.Content.Headers.Contains(HeaderNames.LastModified));
+    }
+
+    [Fact]
+    public async Task ETagIsSet_SetsCacheControlToNoCache()
+    {
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(
+            static ctx => ctx.Response.Headers.ETag = anyETag);
+
+        Assert.Equal("no-cache", httpResponseMessage.Headers.CacheControl?.ToString());
+    }
+
+    [Fact]
+    public async Task LastModifiedIsSet_SetsCacheControlToNoCache()
+    {
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(
+            static ctx => ctx.Response.Headers.LastModified = anyDateTimeOffset.ToString("R"));
+
+        Assert.Equal("no-cache", httpResponseMessage.Headers.CacheControl?.ToString());
     }
 
     [Fact]
     public async Task RemovesExpires()
     {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(ctx =>
-        {
-            ctx.Response.GetTypedHeaders().Expires = anyDateTimeOffset;
-        });
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(
+            static ctx => ctx.Response.Headers.Expires = anyDateTimeOffset.ToString("R"));
 
-        Assert.Null(httpResponseMessage.Content.Headers.Expires);
+        Assert.False(httpResponseMessage.Content.Headers.Contains(HeaderNames.Expires));
     }
 
     [Fact]
     public async Task RemovesPragma()
     {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(static ctx =>
-        {
-            ctx.Response.Headers.Pragma = "no-cache";
-        });
+        const string onlyValidPragmaValue = "no-cache";
 
-        Assert.Empty(httpResponseMessage.Headers.Pragma);
+        var httpResponseMessage = await RunMiddlewarePipelineAsync(
+            static ctx => ctx.Response.Headers.Pragma = onlyValidPragmaValue);
+
+        Assert.False(httpResponseMessage.Headers.Contains(HeaderNames.Pragma));
     }
 
-    [Fact]
-    public async Task SetsCacheControlValueToNoCacheWhenETagIsSet()
-    {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(static ctx =>
-        {
-            ctx.Response.GetTypedHeaders().ETag = EntityTagHeaderValue.Any;
-        });
-
-        Assert.Equal("no-cache", httpResponseMessage.Headers.CacheControl?.ToString());
-    }
-
-    [Fact]
-    public async Task SetsCacheControlValueToNoCacheWhenLastModifiedIsSet()
-    {
-        using var httpResponseMessage = await RunCacheHeadersMiddlewarePipelineAsync(ctx =>
-        {
-            ctx.Response.GetTypedHeaders().LastModified = anyDateTimeOffset;
-        });
-
-        Assert.Equal("no-cache", httpResponseMessage.Headers.CacheControl?.ToString());
-    }
-
-    private static async ValueTask<HttpResponseMessage> RunCacheHeadersMiddlewarePipelineAsync(Action<HttpContext>? configureHttpContext = null)
+    private static async ValueTask<HttpResponseMessage> RunMiddlewarePipelineAsync(Action<HttpContext>? configureHttpContext = null)
     {
         var testHost = await TestHostBuilder.StartAsync(applicationBuilder =>
         {
@@ -135,13 +121,13 @@ public class CacheResponseHeadersMiddlewareTests
             if (configureHttpContext is null)
                 return;
 
-            applicationBuilder.Use(async (ctx, nextMiddleware) =>
+            applicationBuilder.Run(ctx =>
             {
                 configureHttpContext(ctx);
-                await nextMiddleware(ctx);
+                return Task.CompletedTask;
             });
         });
 
-        return await testHost.GetTestClient().GetAsync("/");
+        return await testHost.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
     }
 }

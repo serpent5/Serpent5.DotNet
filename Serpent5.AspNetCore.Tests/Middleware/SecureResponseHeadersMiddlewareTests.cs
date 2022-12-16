@@ -125,6 +125,6 @@ public class SecureResponseHeadersMiddlewareTests
             });
         });
 
-        return await testHost.GetTestClient().GetAsync("/");
+        return await testHost.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
     }
 }
