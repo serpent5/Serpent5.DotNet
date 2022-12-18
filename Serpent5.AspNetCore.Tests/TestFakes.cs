@@ -15,6 +15,17 @@ internal static class TestFakes
     public static IWebHostEnvironment WebHostEnvironment()
         => Mock.Of<IWebHostEnvironment>();
 
+    public static IOptionsMonitor<T> OptionsMonitor<T>(T? optionsValue = null)
+        where T : class, new()
+    {
+        var mockOptionsMonitor = new Mock<IOptionsMonitor<T>>();
+
+        mockOptionsMonitor.SetupGet(x => x.CurrentValue)
+            .Returns(optionsValue ?? new T());
+
+        return mockOptionsMonitor.Object;
+    }
+
     public static HttpContext HttpContext()
         => new DefaultHttpContext();
 

@@ -21,7 +21,7 @@ namespace Serpent5.AspNetCore.Controllers;
 [Route("/StatusCodes/{statusCode:int}")]
 [AllowAnonymous]
 [ApiExplorerSettings(IgnoreApi = true)]
-public class StatusCodesController : Controller
+public sealed class StatusCodesController : Controller
 {
     private static readonly MediaTypeHeaderValue jsonMediaTypeHeaderValue = new("application/json");
     private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new("text/html");

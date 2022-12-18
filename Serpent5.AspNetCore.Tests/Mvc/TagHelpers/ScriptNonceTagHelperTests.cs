@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Serpent5.AspNetCore.Mvc.TagHelpers;
 
-namespace Serpent5.AspNetCore.Tests;
+namespace Serpent5.AspNetCore.Tests.Mvc.TagHelpers;
 
 public class ScriptNonceTagHelperTests
 {

@@ -4,14 +4,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Serpent5.AspNetCore;
+namespace Serpent5.AspNetCore.Mvc.TagHelpers;
 
 /// <summary>
 /// An <see cref="ITagHelper"/> implementation that adds a <c>nonce</c> to &lt;script&gt; elements.
 /// </summary>
 [PublicAPI]
 [HtmlTargetElement("script")]
-public class ScriptNonceTagHelper : TagHelper
+public sealed class ScriptNonceTagHelper : TagHelper
 {
     /// <summary>
     /// Gets the <see cref="Microsoft.AspNetCore.Mvc.Rendering.ViewContext"/> of the executing view.

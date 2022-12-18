@@ -3,7 +3,7 @@ namespace Serpent5.Core.Tests;
 public class ArgumentExceptionExtensionsTests
 {
     [Fact]
-    public void ThrowsArgumentNullExceptionWhenInputIsNull()
+    public void ThrowIfNullOrWhiteSpace_InputIsNull_ThrowsArgumentNullException()
     {
         string inputValue = null!;
         Assert.Throws<ArgumentNullException>(nameof(inputValue), () => ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(inputValue));
@@ -12,10 +12,10 @@ public class ArgumentExceptionExtensionsTests
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void ThrowsArgumentExceptionWhenInputIsEmptyOrWhiteSpace(string inputValue)
+    public void ThrowIfNullOrWhiteSpace_InputIsEmptyOrWhiteSpace_ThrowsArgumentException(string inputValue)
         => Assert.Throws<ArgumentException>(nameof(inputValue), () => ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(inputValue));
 
     [Fact]
-    public void DoesNotThrowExceptionWhenInputIsNotNullEmptyOrWhiteSpace()
-        => Assert.Null(Record.Exception(() => ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace("AnyNotNullEmptyOrWhiteSpaceString")));
+    public void ThrowIfNullOrWhiteSpace_InputIsNotNullEmptyOrWhiteSpace_DoesNotThrowException()
+        => Assert.Null(Record.Exception(() => ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace("anyNotNullEmptyOrWhiteSpaceString")));
 }

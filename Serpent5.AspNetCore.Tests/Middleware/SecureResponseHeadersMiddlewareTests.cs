@@ -52,7 +52,7 @@ public class SecureResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task SetsContentSecurityPolicyScriptWithNonce()
+    public async Task NonceIsAvailable_SetsContentSecurityPolicyScriptWithNonce()
     {
         var nonceValue = string.Empty;
         var httpResponseMessage = await RunMiddlewarePipelineAsync(htmlContentType, ctx => nonceValue = ctx.GetNonce());
@@ -88,7 +88,7 @@ public class SecureResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task DoesNotSetContentSecurityPolicy()
+    public async Task ContentIsNotHTML_DoesNotSetContentSecurityPolicy()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(anyContentTypeExceptHtml);
 
@@ -96,7 +96,7 @@ public class SecureResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task DoesNotSetReferrerPolicy()
+    public async Task ContentIsNotHTML_DoesNotSetReferrerPolicy()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(anyContentTypeExceptHtml);
 
@@ -104,7 +104,7 @@ public class SecureResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task DoesNotSetPermissionsPolicy()
+    public async Task ContentIsNotHTML_DoesNotSetPermissionsPolicy()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(anyContentTypeExceptHtml);
 

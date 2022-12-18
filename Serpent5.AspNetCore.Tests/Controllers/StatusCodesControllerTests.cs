@@ -296,6 +296,7 @@ public class StatusCodesControllerTests
     private static readonly Expression<Func<IHttpForwarder, ValueTask<ForwarderError>>> httpForwarderSendAsync =
         x => x.SendAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<HttpMessageInvoker>(), It.IsAny<ForwarderRequestConfig>(), It.IsAny<HttpTransformer>());
 
+    // ReSharper disable once SuggestBaseTypeForParameter
     private static async Task<HttpRequestMessage> TransformHttpForwarderRequestAsync(Mock<IHttpForwarder> mockHttpForwarder, HttpContext httpContext)
     {
         var httpRequestMessage = new HttpRequestMessage();

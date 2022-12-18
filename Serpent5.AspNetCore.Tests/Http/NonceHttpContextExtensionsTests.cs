@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Serpent5.AspNetCore.Tests;
+namespace Serpent5.AspNetCore.Tests.Http;
 
 public class NonceHttpContextExtensionsTests
 {
