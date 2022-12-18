@@ -75,7 +75,7 @@ public class StatusCodesControllerTests
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature("/Example", "?Example=Value")
         };
 
-        Assert.IsType<NoneResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
+        Assert.IsType<EmptyResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
 
         mockHttpForwarder.Verify(httpForwarderSendAsync, Times.Once);
     }

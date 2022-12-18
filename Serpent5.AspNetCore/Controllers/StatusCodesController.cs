@@ -68,6 +68,7 @@ public sealed class StatusCodesController : Controller
         if (httpForwarder is not null && await ForwardRequestAsync(new Uri("http://localhost:4200")) is { } actionResult)
             return actionResult;
 
+        // ReSharper disable once InvertIf
         if (mediaTypeHeaderValues.Any(x => x.IsSubsetOf(htmlMediaTypeHeaderValue)))
         {
             if (statusCode == StatusCodes.Status404NotFound && (statusCodeReExecuteFeature is null || Path.GetExtension(statusCodeReExecuteFeature.OriginalPath).Length == 0))
@@ -114,7 +115,7 @@ public sealed class StatusCodesController : Controller
             });
 
         if (forwarderError is ForwarderError.None)
-            return new NoneResult();
+            return new EmptyResult();
 
         if (HttpContext.Features.Get<IForwarderErrorFeature>()?.Exception is { } ex)
             throw ex;

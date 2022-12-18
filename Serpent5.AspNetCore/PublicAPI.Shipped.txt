@@ -8,9 +8,7 @@ Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiratio
 Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiration.set -> void
 Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
 Microsoft.AspNetCore.Mvc.ApplicationModels.RemoveIndexPageRouteModelConventionExtensions
-Microsoft.AspNetCore.Mvc.NoneResult
-Microsoft.AspNetCore.Mvc.NoneResult.ExecuteResultAsync(Microsoft.AspNetCore.Mvc.ActionContext! ctx) -> System.Threading.Tasks.Task!
-Microsoft.AspNetCore.Mvc.NoneResult.NoneResult() -> void
+Microsoft.Extensions.DependencyInjection.ApplicationInsightsServiceCollectionExtensions
 Microsoft.Extensions.DependencyInjection.DistributedCacheTicketStoreExtensions
 override Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.Process(Microsoft.AspNetCore.Razor.TagHelpers.TagHelperContext! ctx, Microsoft.AspNetCore.Razor.TagHelpers.TagHelperOutput! tagHelperOutput) -> void
 Serpent5.AspNetCore.Controllers.StatusCodesController
@@ -23,5 +21,7 @@ Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.ViewContext.set -> void
 static Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions.UseCacheResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
 static Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions.UseSecureResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
 static Microsoft.AspNetCore.Mvc.ApplicationModels.RemoveIndexPageRouteModelConventionExtensions.RemoveIndexPageRoutes(this Microsoft.AspNetCore.Mvc.ApplicationModels.PageConventionCollection! pageConventionCollection) -> Microsoft.AspNetCore.Mvc.ApplicationModels.IPageRouteModelConvention!
+static Microsoft.Extensions.DependencyInjection.ApplicationInsightsServiceCollectionExtensions.AddAuthenticatedUserIdTelemetryInitializer(this Microsoft.Extensions.DependencyInjection.IServiceCollection! serviceCollection, string! claimType) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Extensions.DependencyInjection.ApplicationInsightsServiceCollectionExtensions.AddCloudRoleNameTelemetryInitializer(this Microsoft.Extensions.DependencyInjection.IServiceCollection! serviceCollection, string! cloudRoleName) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Microsoft.Extensions.DependencyInjection.DistributedCacheTicketStoreExtensions.AddCookiesDistributedCacheTicketStore(this Microsoft.Extensions.DependencyInjection.IServiceCollection! serviceCollection) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Microsoft.Extensions.DependencyInjection.DistributedCacheTicketStoreExtensions.AddCookiesDistributedCacheTicketStore(this Microsoft.Extensions.DependencyInjection.IServiceCollection! serviceCollection, System.Action<Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions!>! setupAction) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

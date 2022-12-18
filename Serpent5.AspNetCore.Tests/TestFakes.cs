@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,16 @@ internal static class TestFakes
     public static HttpContext HttpContext()
         => new DefaultHttpContext();
 
+    public static HttpContext HttpContextWithUserClaim(string claimType, string claimValue)
+    {
+        var httpContext = HttpContext();
+        httpContext.User = ClaimsPrincipalWithClaim(claimType, claimValue);
+        return httpContext;
+    }
+
     public static ControllerContext ControllerContext()
         => new() { HttpContext = HttpContext() };
+
+    private static ClaimsPrincipal ClaimsPrincipalWithClaim(string claimType, string claimValue)
+        => new(new ClaimsIdentity(new[] { new Claim(claimType, claimValue) }, "fakeAuthenticationType"));
 }
