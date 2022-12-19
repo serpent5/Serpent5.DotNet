@@ -7,6 +7,8 @@ Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.Expires.set -> v
 Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiration.get -> System.TimeSpan
 Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiration.set -> void
 Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
+Microsoft.AspNetCore.Builder.WebApplicationBehaviors
+Microsoft.AspNetCore.Builder.WebApplicationBehaviors.Configure(Microsoft.AspNetCore.Builder.WebApplicationBuilder! webApplicationBuilder) -> void
 Microsoft.AspNetCore.Mvc.ApplicationModels.RemoveIndexPageRouteModelConventionExtensions
 Microsoft.Extensions.DependencyInjection.ApplicationInsightsServiceCollectionExtensions
 Microsoft.Extensions.DependencyInjection.DistributedCacheTicketStoreExtensions
@@ -20,6 +22,7 @@ Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.ViewContext.get -> Micro
 Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.ViewContext.set -> void
 static Microsoft.AspNetCore.Builder.CacheResponseHeadersMiddlewareExtensions.UseCacheResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
 static Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions.UseSecureResponseHeaders(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static Microsoft.AspNetCore.Builder.WebApplicationBehaviors.Create(string! appName) -> Microsoft.AspNetCore.Builder.WebApplicationBehaviors!
 static Microsoft.AspNetCore.Mvc.ApplicationModels.RemoveIndexPageRouteModelConventionExtensions.RemoveIndexPageRoutes(this Microsoft.AspNetCore.Mvc.ApplicationModels.PageConventionCollection! pageConventionCollection) -> Microsoft.AspNetCore.Mvc.ApplicationModels.IPageRouteModelConvention!
 static Microsoft.Extensions.DependencyInjection.ApplicationInsightsServiceCollectionExtensions.AddAuthenticatedUserIdTelemetryInitializer(this Microsoft.Extensions.DependencyInjection.IServiceCollection! serviceCollection, string! claimType) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Microsoft.Extensions.DependencyInjection.ApplicationInsightsServiceCollectionExtensions.AddCloudRoleNameTelemetryInitializer(this Microsoft.Extensions.DependencyInjection.IServiceCollection! serviceCollection, string! cloudRoleName) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

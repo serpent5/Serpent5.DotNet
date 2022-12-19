@@ -11,6 +11,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Serpent5.AspNetCore.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="..\serpent5.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
