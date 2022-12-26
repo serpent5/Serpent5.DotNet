@@ -1,6 +1,7 @@
 using System.Globalization;
+using System.Reflection;
 using System.Security.Claims;
-using JetBrains.Annotations;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Routing;
@@ -12,60 +13,55 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using Serpent5.AspNetCore.Builder.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.AspNetCore.Builder;
+namespace Serpent5.AspNetCore.Builder;
 
-/// <summary>
-/// A set of behaviors for configuring a <see cref="WebApplication" /> to behave as e.g. a Web API.
-/// </summary>
-[PublicAPI]
-public class WebApplicationBehaviors
+internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
 {
     [Flags]
     private enum WebApplicationBehavior : byte
     {
         None,
-        Default = 0x01
+        Default = 0x01,
+        // ReSharper disable once InconsistentNaming
+        WebAPI = 0x02
     }
 
     private readonly IDictionary<WebApplicationBehavior, Action<WebApplicationBuilder>> webApplicationBehaviorActions;
-
     private WebApplicationBehavior webApplicationBehaviors = WebApplicationBehavior.Default;
 
-    private WebApplicationBehaviors(string appName)
+    public WebApplicationBehaviorBuilder(string appName)
     {
         ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(appName);
 
         webApplicationBehaviorActions = new Dictionary<WebApplicationBehavior, Action<WebApplicationBuilder>>
         {
-            [WebApplicationBehavior.Default] = x => ConfigureDefault(x, appName)
+            [WebApplicationBehavior.Default] = webApplicationBuilder => ConfigureDefault(webApplicationBuilder, appName),
+            [WebApplicationBehavior.WebAPI] = ConfigureWebAPI
         };
     }
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="WebApplicationBehaviors" />.
-    /// </summary>
-    /// <param name="appName">The name of the app, as shown in e.g. Application Insights.</param>
-    /// <returns>A reference to the provided <see cref="WebApplicationBehaviors" /> for a fluent API.</returns>
-    public static WebApplicationBehaviors Create(string appName)
-        => new(appName);
+    public IWebApplicationBehaviorBuilder ConfigureWebAPI()
+    {
+        AddBehavior(WebApplicationBehavior.WebAPI);
+        return this;
+    }
 
-    /// <summary>
-    /// Configures a <see cref="WebApplicationBuilder" /> with the behaviors attached to this <see cref="WebApplicationBehaviors" />.
-    /// </summary>
-    /// <param name="webApplicationBuilder">The <see cref="WebApplicationBuilder" />to configure.</param>
-    public void Configure(WebApplicationBuilder webApplicationBuilder)
+    internal void Configure(WebApplicationBuilder webApplicationBuilder)
     {
         foreach (var webApplicationBehavior in Enum.GetValues<WebApplicationBehavior>())
         {
             if (webApplicationBehavior is WebApplicationBehavior.None)
                 continue;
 
-            if ((webApplicationBehaviors & webApplicationBehavior) == webApplicationBehavior)
+            if (webApplicationBehaviors.HasFlag(webApplicationBehavior))
                 webApplicationBehaviorActions[webApplicationBehavior](webApplicationBuilder);
         }
     }
+
+    private void AddBehavior(WebApplicationBehavior webApplicationBehavior)
+        => webApplicationBehaviors |= webApplicationBehavior;
 
     private static void ConfigureDefault(WebApplicationBuilder webApplicationBuilder, string appName)
     {
@@ -109,5 +105,22 @@ public class WebApplicationBehaviors
                 .AddTransient<IConfigureOptions<HttpsRedirectionOptions>, HttpsRedirectionOptionsSetup>()
                 .AddTransient<IConfigureOptions<HstsOptions>, HstsOptionsSetup>();
         }
+    }
+
+    // ReSharper disable once InconsistentNaming
+    private static void ConfigureWebAPI(WebApplicationBuilder webApplicationBuilder)
+    {
+        if (webApplicationBuilder.Environment.IsDevelopment())
+        {
+            webApplicationBuilder.Services.AddSwaggerGen();
+
+            var xmlCommentsFilename = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+
+            if (File.Exists(xmlCommentsFilename))
+                webApplicationBuilder.Services.Configure<SwaggerGenOptions>(o => o.IncludeXmlComments(xmlCommentsFilename));
+        }
+
+        webApplicationBuilder.Services.AddTransient<IConfigureOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>, JsonOptionsSetup>();
+        webApplicationBuilder.Services.AddTransient<IConfigureOptions<Microsoft.AspNetCore.Mvc.JsonOptions>, JsonOptionsSetup>();
     }
 }
