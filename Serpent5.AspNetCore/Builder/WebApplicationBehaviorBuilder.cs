@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -22,10 +23,13 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
     [Flags]
     private enum WebApplicationBehavior : byte
     {
+        // ReSharper disable InconsistentNaming
         None,
-        Default = 0x01,
-        // ReSharper disable once InconsistentNaming
-        WebAPI = 0x02
+        Default = 1,
+        WebAPI = 1 << 1,
+        ServerUI = 1 << 2,
+        ClientUI = 1 << 3
+        // ReSharper restore InconsistentNaming
     }
 
     private readonly IDictionary<WebApplicationBehavior, Action<WebApplicationBuilder>> webApplicationBehaviorActions;
@@ -38,15 +42,20 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
         webApplicationBehaviorActions = new Dictionary<WebApplicationBehavior, Action<WebApplicationBuilder>>
         {
             [WebApplicationBehavior.Default] = webApplicationBuilder => ConfigureDefault(webApplicationBuilder, appName),
-            [WebApplicationBehavior.WebAPI] = ConfigureWebAPI
+            [WebApplicationBehavior.WebAPI] = ConfigureWebAPI,
+            [WebApplicationBehavior.ServerUI] = ConfigureServerUI,
+            [WebApplicationBehavior.ClientUI] = ConfigureClientUI
         };
     }
 
     public IWebApplicationBehaviorBuilder ConfigureWebAPI()
-    {
-        AddBehavior(WebApplicationBehavior.WebAPI);
-        return this;
-    }
+        => AddBehavior(WebApplicationBehavior.WebAPI);
+
+    public IWebApplicationBehaviorBuilder ConfigureServerUI()
+        => AddBehavior(WebApplicationBehavior.ServerUI);
+
+    public IWebApplicationBehaviorBuilder ConfigureClientUI()
+        => AddBehavior(WebApplicationBehavior.ClientUI);
 
     internal void Configure(WebApplicationBuilder webApplicationBuilder)
     {
@@ -60,8 +69,11 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
         }
     }
 
-    private void AddBehavior(WebApplicationBehavior webApplicationBehavior)
-        => webApplicationBehaviors |= webApplicationBehavior;
+    private IWebApplicationBehaviorBuilder AddBehavior(WebApplicationBehavior webApplicationBehavior)
+    {
+        webApplicationBehaviors |= webApplicationBehavior;
+        return this;
+    }
 
     private static void ConfigureDefault(WebApplicationBuilder webApplicationBuilder, string appName)
     {
@@ -92,18 +104,16 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
 
         webApplicationBuilder.Services.AddHealthChecks();
 
-        webApplicationBuilder.Services
-            .AddTransient<IConfigureOptions<KestrelServerOptions>, KestrelServerOptionsSetup>()
-            .AddTransient<IConfigureOptions<RouteOptions>, RouteOptionsSetup>()
-            .AddTransient<IConfigureOptions<HealthCheckOptions>, HealthCheckOptionsSetup>()
-            .AddTransient<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsSetup>();
+        ConfigureOptions<KestrelServerOptions, KestrelServerOptionsSetup>(webApplicationBuilder);
+        ConfigureOptions<RouteOptions, RouteOptionsSetup>(webApplicationBuilder);
+        ConfigureOptions<HealthCheckOptions, HealthCheckOptionsSetup>(webApplicationBuilder);
+        ConfigureOptions<CookiePolicyOptions, CookiePolicyOptionsSetup>(webApplicationBuilder);
 
         if (!webApplicationBuilder.Environment.IsDevelopment())
         {
-            webApplicationBuilder.Services
-                .AddTransient<IConfigureOptions<ExceptionHandlerOptions>, ExceptionHandlerOptionsSetup>()
-                .AddTransient<IConfigureOptions<HttpsRedirectionOptions>, HttpsRedirectionOptionsSetup>()
-                .AddTransient<IConfigureOptions<HstsOptions>, HstsOptionsSetup>();
+            ConfigureOptions<ExceptionHandlerOptions, ExceptionHandlerOptionsSetup>(webApplicationBuilder);
+            ConfigureOptions<HttpsRedirectionOptions, HttpsRedirectionOptionsSetup>(webApplicationBuilder);
+            ConfigureOptions<HstsOptions, HstsOptionsSetup>(webApplicationBuilder);
         }
     }
 
@@ -120,7 +130,34 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
                 webApplicationBuilder.Services.Configure<SwaggerGenOptions>(o => o.IncludeXmlComments(xmlCommentsFilename));
         }
 
-        webApplicationBuilder.Services.AddTransient<IConfigureOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>, JsonOptionsSetup>();
-        webApplicationBuilder.Services.AddTransient<IConfigureOptions<Microsoft.AspNetCore.Mvc.JsonOptions>, JsonOptionsSetup>();
+        ConfigureOptions<Microsoft.AspNetCore.Http.Json.JsonOptions, JsonOptionsSetup>(webApplicationBuilder);
+        ConfigureOptions<Microsoft.AspNetCore.Mvc.JsonOptions, JsonOptionsSetup>(webApplicationBuilder);
     }
+
+    // ReSharper disable once InconsistentNaming
+    private static void ConfigureServerUI(WebApplicationBuilder webApplicationBuilder)
+        => ConfigureCommonUI(webApplicationBuilder);
+
+    // ReSharper disable once InconsistentNaming
+    private static void ConfigureClientUI(WebApplicationBuilder webApplicationBuilder)
+    {
+        if (webApplicationBuilder.Environment.IsDevelopment())
+            webApplicationBuilder.Services.AddHttpForwarder();
+
+        ConfigureCommonUI(webApplicationBuilder);
+    }
+
+    // ReSharper disable once InconsistentNaming
+    private static void ConfigureCommonUI(WebApplicationBuilder webApplicationBuilder)
+    {
+        ConfigureOptions<StaticFileOptions, StaticFileOptionsSetup>(webApplicationBuilder);
+
+        if (!webApplicationBuilder.Environment.IsDevelopment())
+            ConfigureOptions<StaticFileOptions, StaticFileOptionsProductionSetup>(webApplicationBuilder);
+    }
+
+    private static void ConfigureOptions<TOptions, TOptionsSetup>(WebApplicationBuilder webApplicationBuilder)
+        where TOptions : class
+        where TOptionsSetup : class, IConfigureOptions<TOptions>
+        => webApplicationBuilder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<TOptions>, TOptionsSetup>());
 }

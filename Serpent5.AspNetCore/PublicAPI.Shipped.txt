@@ -7,6 +7,8 @@ Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.Expires.set -> v
 Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiration.get -> System.TimeSpan
 Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiration.set -> void
 Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder
+Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder.ConfigureClientUI() -> Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder!
+Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder.ConfigureServerUI() -> Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder!
 Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder.ConfigureWebAPI() -> Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder!
 Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
 Microsoft.AspNetCore.Builder.WebApplicationBuilderBehaviorExtensions
