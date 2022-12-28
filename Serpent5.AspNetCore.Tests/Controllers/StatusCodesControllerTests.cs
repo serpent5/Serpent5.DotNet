@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Moq;
+using Serpent5.AspNetCore.Builder;
 using Serpent5.AspNetCore.Controllers;
 using Yarp.ReverseProxy.Forwarder;
 
@@ -19,12 +21,14 @@ public class StatusCodesControllerTests
 {
     private const string anyFilenamePath = "/any.file";
     private const ForwarderError anyForwarderError = ForwarderError.Request;
+    private static readonly Uri anyAbsoluteUri = new("https://example.com");
 
     [Theory]
     [ClassData(typeof(TestStatusCodes))]
     public async Task ProducesStatusCode(int statusCode)
     {
-        var statusCodesController = new StatusCodesController(TestFakes.WebHostEnvironment(), TestFakes.MemoryCache())
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache())
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature()
         };
@@ -38,21 +42,23 @@ public class StatusCodesControllerTests
     [ClassData(typeof(TestStatusCodes))]
     public async Task DirectRequest_ProducesStatusCode404(int statusCode)
     {
-        var statusCodesController = new StatusCodesController(TestFakes.WebHostEnvironment(), TestFakes.MemoryCache())
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache())
         {
             ControllerContext = TestFakes.ControllerContext()
         };
 
         var statusCodeResult = Assert.IsType<StatusCodeResult>(await statusCodesController.Index(statusCode));
 
-        Assert.Equal(StatusCodes.Status404NotFound, statusCodeResult.StatusCode);
+        Assert.Equal(404, statusCodeResult.StatusCode);
     }
 
     [Theory]
     [ClassData(typeof(TestStatusCodes))]
     public async Task ClientAcceptsJSON_ProducesProblemDetails(int statusCode)
     {
-        var statusCodesController = new StatusCodesController(TestFakes.WebHostEnvironment(), TestFakes.MemoryCache())
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache())
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(),
             Request = { Headers = { Accept = MediaTypeNames.Application.Json } }
@@ -70,12 +76,12 @@ public class StatusCodesControllerTests
         var mockHttpForwarder = new Mock<IHttpForwarder>();
 
         var statusCodesController = new StatusCodesController(
-            TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature("/Example", "?Example=Value")
         };
 
-        Assert.IsType<EmptyResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
+        Assert.IsType<EmptyResult>(await statusCodesController.Index(404));
 
         mockHttpForwarder.Verify(httpForwarderSendAsync, Times.Once);
     }
@@ -84,19 +90,25 @@ public class StatusCodesControllerTests
     public async Task StatusCode404_HttpForwarder_TransformsRequest()
     {
         var mockHttpForwarder = new Mock<IHttpForwarder>();
+        var fakeServerAddress = new Uri("https://ui.example.com");
 
         var statusCodesController = new StatusCodesController(
-            TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
+            CreateFakeStatusCodesOptions(fakeServerAddress), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature("/Example", "?Example=Value")
         };
 
-        await statusCodesController.Index(StatusCodes.Status404NotFound);
+        await statusCodesController.Index(404);
 
         var fakeHttpRequestMessage = await TransformHttpForwarderRequestAsync(mockHttpForwarder, statusCodesController.HttpContext);
 
-        // TODO: Config.
-        Assert.Equal(new Uri("http://localhost:4200/Example?Example=Value"), fakeHttpRequestMessage.RequestUri);
+        var expectedRequestUriBuilder = new UriBuilder(fakeServerAddress)
+        {
+            Path = "Example",
+            Query = "Example=Value"
+        };
+
+        Assert.Equal(expectedRequestUriBuilder.Uri, fakeHttpRequestMessage.RequestUri);
     }
 
     [Fact]
@@ -104,12 +116,12 @@ public class StatusCodesControllerTests
     {
         var mockHttpForwarder = new Mock<IHttpForwarder>();
         var statusCodesController = new StatusCodesController(
-            TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
         {
             ControllerContext = TestFakes.ControllerContext()
         };
 
-        await statusCodesController.Index(StatusCodes.Status404NotFound);
+        await statusCodesController.Index(404);
 
         var fakeHttpRequestMessage = await TransformHttpForwarderRequestAsync(mockHttpForwarder, statusCodesController.HttpContext);
 
@@ -124,7 +136,7 @@ public class StatusCodesControllerTests
         mockHttpForwarder.Setup(httpForwarderSendAsync).ReturnsAsync(anyForwarderError);
 
         var statusCodesController = new StatusCodesController(
-            TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature()
         };
@@ -137,7 +149,7 @@ public class StatusCodesControllerTests
 
         Assert.Same(
             fakeForwarderErrorFeature.Exception,
-            await Assert.ThrowsAsync<Exception>(() => statusCodesController.Index(StatusCodes.Status404NotFound)));
+            await Assert.ThrowsAsync<Exception>(() => statusCodesController.Index(404)));
     }
 
     [Fact]
@@ -148,30 +160,29 @@ public class StatusCodesControllerTests
         mockHttpForwarder.Setup(httpForwarderSendAsync).ReturnsAsync(anyForwarderError);
 
         var statusCodesController = new StatusCodesController(
-            TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), mockHttpForwarder.Object)
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature()
         };
 
-        var statusCodeResult = Assert.IsType<StatusCodeResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
+        var statusCodeResult = Assert.IsType<StatusCodeResult>(await statusCodesController.Index(400));
 
-        Assert.Equal(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
+        Assert.Equal(500, statusCodeResult.StatusCode);
     }
 
     [Fact]
     public async Task StatusCode404_ClientAcceptsHTML_IndexHTMLExists_ProducesHTML()
     {
         var statusCodesController = new StatusCodesController(
-            CreateFakeWebHostEnvironmentWithFileProvider(CreateFakeFileProvider()),
-            TestFakes.MemoryCache())
+            CreateFakeStatusCodesOptions(), CreateFakeWebHostEnvironmentWithFileProvider(CreateFakeFileProvider()), TestFakes.MemoryCache())
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(),
             Request = { Headers = { Accept = MediaTypeNames.Text.Html } }
         };
 
-        var contentResult = Assert.IsType<ContentResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
+        var contentResult = Assert.IsType<ContentResult>(await statusCodesController.Index(404));
 
-        Assert.Equal(StatusCodes.Status200OK, contentResult.StatusCode);
+        Assert.Equal(200, contentResult.StatusCode);
         Assert.Equal("text/html; charset=utf-8", contentResult.ContentType);
         Assert.Equal("<html><head></head><body></body></html>", contentResult.Content);
     }
@@ -180,14 +191,13 @@ public class StatusCodesControllerTests
     public async Task StatusCode404_ClientAcceptsHTML_IndexHTMLExists_AddsScriptNoncesToHTML()
     {
         var statusCodesController = new StatusCodesController(
-            CreateFakeWebHostEnvironmentWithFileProvider(CreateFakeFileProvider("<body><script></script></body>")),
-            TestFakes.MemoryCache())
+            CreateFakeStatusCodesOptions(), CreateFakeWebHostEnvironmentWithFileProvider(CreateFakeFileProvider("<body><script></script></body>")), TestFakes.MemoryCache())
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(),
             Request = { Headers = { Accept = MediaTypeNames.Text.Html } }
         };
 
-        var contentResult = Assert.IsType<ContentResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
+        var contentResult = Assert.IsType<ContentResult>(await statusCodesController.Index(404));
         var expectedNonce = statusCodesController.HttpContext.GetNonce();
 
         Assert.Equal(
@@ -200,14 +210,15 @@ public class StatusCodesControllerTests
     {
         var fakeWebHostEnvironment = CreateFakeWebHostEnvironmentWithFileProvider(CreateFakeFileProvider());
 
-        var statusCodesController = new StatusCodesController(fakeWebHostEnvironment, TestFakes.MemoryCache())
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), fakeWebHostEnvironment, TestFakes.MemoryCache())
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(),
             Request = { Headers = { Accept = MediaTypeNames.Text.Html } }
         };
 
-        await statusCodesController.Index(StatusCodes.Status404NotFound);
-        await statusCodesController.Index(StatusCodes.Status404NotFound);
+        await statusCodesController.Index(404);
+        await statusCodesController.Index(404);
 
         Mock.Get(fakeWebHostEnvironment.WebRootFileProvider.GetFileInfo(string.Empty))
             .Verify(x => x.CreateReadStream(), Times.Once);
@@ -217,24 +228,23 @@ public class StatusCodesControllerTests
     public async Task StatusCode404_FileRequest_ClientAcceptsHTML_IndexHTMLExists_ProducesStatusCode404()
     {
         var statusCodesController = new StatusCodesController(
-            CreateFakeWebHostEnvironmentWithFileProvider(CreateFakeFileProvider()),
-            TestFakes.MemoryCache())
+            CreateFakeStatusCodesOptions(), CreateFakeWebHostEnvironmentWithFileProvider(CreateFakeFileProvider()), TestFakes.MemoryCache())
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(anyFilenamePath),
             Request = { Headers = { Accept = MediaTypeNames.Text.Html } }
         };
 
-        var statusCodeResult = Assert.IsType<StatusCodeResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
+        var statusCodeResult = Assert.IsType<StatusCodeResult>(await statusCodesController.Index(404));
 
-        Assert.Equal(StatusCodes.Status404NotFound, statusCodeResult.StatusCode);
+        Assert.Equal(404, statusCodeResult.StatusCode);
     }
 
     [Theory]
     [ClassData(typeof(TestStatusCodes))]
     public async Task ClientAcceptsHTML_StatusCodeViewExists_ProducesStatusCodeView(int statusCode)
     {
-        var statusCodesController = new StatusCodesController(TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(),
-            compositeViewEngine: CreateFakeCompositeViewEngine(statusCode.ToString(CultureInfo.InvariantCulture)))
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), compositeViewEngine: CreateFakeCompositeViewEngine(statusCode.ToString(CultureInfo.InvariantCulture)))
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(),
             Request = { Headers = { Accept = MediaTypeNames.Text.Html } }
@@ -250,8 +260,8 @@ public class StatusCodesControllerTests
     [ClassData(typeof(TestStatusCodes))]
     public async Task ClientAcceptsHTML_StatusCodeViewDoesNotExist_DefaultViewExists_ProducesDefaultView(int statusCode)
     {
-        var statusCodesController = new StatusCodesController(TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(),
-            compositeViewEngine: CreateFakeCompositeViewEngine("Default"))
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), compositeViewEngine: CreateFakeCompositeViewEngine("Default"))
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(),
             Request = { Headers = { Accept = MediaTypeNames.Text.Html } }
@@ -266,17 +276,17 @@ public class StatusCodesControllerTests
     [Fact]
     public async Task StatusCode404_FileRequest_ClientAcceptsHTML_StatusCodeViewExists_ProducesStatusCodeView404()
     {
-        var statusCodesController = new StatusCodesController(TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(),
-            compositeViewEngine: CreateFakeCompositeViewEngine(StatusCodes.Status404NotFound.ToString(CultureInfo.InvariantCulture)))
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), TestFakes.MemoryCache(), compositeViewEngine: CreateFakeCompositeViewEngine("404"))
         {
             ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(anyFilenamePath),
             Request = { Headers = { Accept = MediaTypeNames.Text.Html } }
         };
 
-        var viewResult = Assert.IsType<ViewResult>(await statusCodesController.Index(StatusCodes.Status404NotFound));
+        var viewResult = Assert.IsType<ViewResult>(await statusCodesController.Index(404));
 
-        Assert.Equal(StatusCodes.Status404NotFound, viewResult.StatusCode);
-        Assert.Equal(StatusCodes.Status404NotFound.ToString(CultureInfo.InvariantCulture), viewResult.ViewName);
+        Assert.Equal(404, viewResult.StatusCode);
+        Assert.Equal("404", viewResult.ViewName);
     }
 
     private static ControllerContext CreateFakeControllerContextWithStatusCodeReExecuteFeature(string? originalPath = null, string? originalQueryString = null)
@@ -292,6 +302,9 @@ public class StatusCodesControllerTests
 
         return fakeControllerContext;
     }
+
+    private static IOptions<ClientUIBehaviorOptions> CreateFakeStatusCodesOptions(Uri? serverAddress = null)
+        => TestFakes.Options(new ClientUIBehaviorOptions { ServerAddress = serverAddress ?? anyAbsoluteUri });
 
     private static readonly Expression<Func<IHttpForwarder, ValueTask<ForwarderError>>> httpForwarderSendAsync =
         x => x.SendAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<HttpMessageInvoker>(), It.IsAny<ForwarderRequestConfig>(), It.IsAny<HttpTransformer>());
@@ -344,9 +357,9 @@ public class StatusCodesControllerTests
     {
         private static readonly List<object[]> testStatusCodes = new()
         {
-            new object[] { StatusCodes.Status200OK },
-            new object[] { StatusCodes.Status400BadRequest },
-            new object[] { StatusCodes.Status500InternalServerError }
+            new object[] { 200 },
+            new object[] { 400 },
+            new object[] { 500 }
         };
 
         public IEnumerator<object[]> GetEnumerator() => testStatusCodes.GetEnumerator();

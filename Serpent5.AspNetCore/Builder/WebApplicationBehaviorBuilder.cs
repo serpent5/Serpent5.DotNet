@@ -33,7 +33,9 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
     }
 
     private readonly IDictionary<WebApplicationBehavior, Action<WebApplicationBuilder>> webApplicationBehaviorActions;
+
     private WebApplicationBehavior webApplicationBehaviors = WebApplicationBehavior.Default;
+    private Uri? serverAddress;
 
     public WebApplicationBehaviorBuilder(string appName)
     {
@@ -44,7 +46,7 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
             [WebApplicationBehavior.Default] = webApplicationBuilder => ConfigureDefault(webApplicationBuilder, appName),
             [WebApplicationBehavior.WebAPI] = ConfigureWebAPI,
             [WebApplicationBehavior.ServerUI] = ConfigureServerUI,
-            [WebApplicationBehavior.ClientUI] = ConfigureClientUI
+            [WebApplicationBehavior.ClientUI] = webApplicationBuilder => ConfigureClientUI(webApplicationBuilder, serverAddress!)
         };
     }
 
@@ -54,8 +56,14 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
     public IWebApplicationBehaviorBuilder ConfigureServerUI()
         => AddBehavior(WebApplicationBehavior.ServerUI);
 
-    public IWebApplicationBehaviorBuilder ConfigureClientUI()
-        => AddBehavior(WebApplicationBehavior.ClientUI);
+    public IWebApplicationBehaviorBuilder ConfigureClientUI(Uri serverAddress)
+    {
+        ArgumentNullException.ThrowIfNull(serverAddress);
+
+        this.serverAddress = serverAddress;
+
+        return AddBehavior(WebApplicationBehavior.ClientUI);
+    }
 
     internal void Configure(WebApplicationBuilder webApplicationBuilder)
     {
@@ -139,8 +147,10 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
         => ConfigureCommonUI(webApplicationBuilder);
 
     // ReSharper disable once InconsistentNaming
-    private static void ConfigureClientUI(WebApplicationBuilder webApplicationBuilder)
+    private static void ConfigureClientUI(WebApplicationBuilder webApplicationBuilder, Uri serverAddress)
     {
+        webApplicationBuilder.Services.Configure<ClientUIBehaviorOptions>(o => o.ServerAddress = serverAddress);
+
         if (webApplicationBuilder.Environment.IsDevelopment())
             webApplicationBuilder.Services.AddHttpForwarder();
 

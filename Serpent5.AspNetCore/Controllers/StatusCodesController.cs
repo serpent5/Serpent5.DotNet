@@ -12,7 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Serpent5.AspNetCore.Builder;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Serpent5.AspNetCore.Controllers;
@@ -34,12 +36,16 @@ public sealed class StatusCodesController : Controller
         ShouldKeepStandardElements = true
     };
 
+    // ReSharper disable once InconsistentNaming
+    private readonly ClientUIBehaviorOptions clientUIBehaviorOptions;
     private readonly IWebHostEnvironment webHostEnvironment;
     private readonly IMemoryCache memoryCache;
     private readonly IHttpForwarder? httpForwarder;
     private readonly IViewEngine? viewEngine;
 
     public StatusCodesController(
+        // ReSharper disable once InconsistentNaming
+        IOptions<ClientUIBehaviorOptions> clientUIBehaviorOptionsAccessor,
         IWebHostEnvironment webHostEnvironment,
         IMemoryCache memoryCache,
         IHttpForwarder? httpForwarder = null,
@@ -47,8 +53,10 @@ public sealed class StatusCodesController : Controller
         // Specific type required for DI resolution.
         ICompositeViewEngine? compositeViewEngine = null)
     {
+        ArgumentNullException.ThrowIfNull(clientUIBehaviorOptionsAccessor);
         ArgumentNullException.ThrowIfNull(webHostEnvironment);
 
+        clientUIBehaviorOptions = clientUIBehaviorOptionsAccessor.Value;
         (this.webHostEnvironment, this.memoryCache, this.httpForwarder, viewEngine) = (webHostEnvironment, memoryCache, httpForwarder, compositeViewEngine);
     }
 
@@ -58,20 +66,23 @@ public sealed class StatusCodesController : Controller
 
         // If this endpoint has been requested outside of UseStatusCodePagesWithReExecute, hide it with a 404.
         if (statusCodeReExecuteFeature is null)
-            statusCode = StatusCodes.Status404NotFound;
+            statusCode = 404;
 
         var mediaTypeHeaderValues = MediaTypeHeaderValue.ParseList(Request.Headers.Accept);
 
         if (mediaTypeHeaderValues.Any(x => x.IsSubsetOf(jsonMediaTypeHeaderValue)))
             return Problem(statusCode: statusCode);
 
-        if (httpForwarder is not null && await ForwardRequestAsync(new Uri("http://localhost:4200")) is { } actionResult)
-            return actionResult;
+        if (httpForwarder is not null && clientUIBehaviorOptions.ServerAddress is not null)
+        {
+            if (await ForwardRequestAsync(clientUIBehaviorOptions.ServerAddress) is { } actionResult)
+                return actionResult;
+        }
 
         // ReSharper disable once InvertIf
         if (mediaTypeHeaderValues.Any(x => x.IsSubsetOf(htmlMediaTypeHeaderValue)))
         {
-            if (statusCode == StatusCodes.Status404NotFound && (statusCodeReExecuteFeature is null || Path.GetExtension(statusCodeReExecuteFeature.OriginalPath).Length == 0))
+            if (statusCode == 404 && (statusCodeReExecuteFeature is null || Path.GetExtension(statusCodeReExecuteFeature.OriginalPath).Length == 0))
             {
                 if (await GetNotFoundContentAsync() is { } contentResult)
                     return contentResult;
@@ -120,7 +131,7 @@ public sealed class StatusCodesController : Controller
         if (HttpContext.Features.Get<IForwarderErrorFeature>()?.Exception is { } ex)
             throw ex;
 
-        return StatusCode(StatusCodes.Status500InternalServerError);
+        return StatusCode(500);
     }
 
     private async Task<ContentResult?> GetNotFoundContentAsync()
@@ -141,7 +152,7 @@ public sealed class StatusCodesController : Controller
         }
 
         var contentResult = Content(htmlDocument.ToHtml(htmlMarkupFormatter), htmlDocument.ContentType, Encoding.GetEncoding(htmlDocument.CharacterSet));
-        contentResult.StatusCode = StatusCodes.Status200OK;
+        contentResult.StatusCode = 200;
         return contentResult;
     }
 

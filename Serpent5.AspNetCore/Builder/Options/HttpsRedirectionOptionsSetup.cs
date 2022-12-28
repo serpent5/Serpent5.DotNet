@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Options;
 
@@ -8,5 +7,5 @@ internal class HttpsRedirectionOptionsSetup : IConfigureOptions<HttpsRedirection
 {
     // https://docs.microsoft.com/en-us/aspnet/core/security/enforcing-ssl#configure-permanent-redirects-in-production
     public void Configure(HttpsRedirectionOptions httpsRedirectionOptions)
-        => httpsRedirectionOptions.RedirectStatusCode = StatusCodes.Status301MovedPermanently;
+        => httpsRedirectionOptions.RedirectStatusCode = 301;
 }

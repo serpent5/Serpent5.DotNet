@@ -11,10 +11,14 @@ namespace Serpent5.AspNetCore.Tests;
 internal static class TestFakes
 {
     public static IMemoryCache MemoryCache()
-        => new MemoryCache(Options.Create(new MemoryCacheOptions()));
+        => new MemoryCache(Options(new MemoryCacheOptions()));
 
     public static IWebHostEnvironment WebHostEnvironment()
         => Mock.Of<IWebHostEnvironment>();
+
+    public static IOptions<T> Options<T>(T? optionsValue = null)
+        where T : class, new()
+        => Microsoft.Extensions.Options.Options.Create(optionsValue ?? new T());
 
     public static IOptionsMonitor<T> OptionsMonitor<T>(T? optionsValue = null)
         where T : class, new()

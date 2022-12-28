@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     branches:
-      - default
+      - master
 defaults:
   run:
     shell: pwsh

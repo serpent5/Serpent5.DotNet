@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Serpent5.AspNetCore.Builder.Options;
 
@@ -14,6 +13,6 @@ public class HttpsRedirectionOptionsSetupTests
 
         httpsRedirectionOptionsSetup.Configure(httpsRedirectionOptions);
 
-        Assert.Equal(StatusCodes.Status301MovedPermanently, httpsRedirectionOptions.RedirectStatusCode);
+        Assert.Equal(301, httpsRedirectionOptions.RedirectStatusCode);
     }
 }

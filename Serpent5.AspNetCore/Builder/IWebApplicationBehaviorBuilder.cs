@@ -31,5 +31,5 @@ public interface IWebApplicationBehaviorBuilder
     /// </summary>
     /// <returns>A reference to <c>this</c> for a fluent API.</returns>
     // ReSharper disable once InconsistentNaming
-    IWebApplicationBehaviorBuilder ConfigureClientUI();
+    IWebApplicationBehaviorBuilder ConfigureClientUI(Uri serverAddress);
 }

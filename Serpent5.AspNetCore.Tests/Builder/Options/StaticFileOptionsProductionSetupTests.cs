@@ -48,7 +48,7 @@ public class StaticFileOptionsProductionSetupTests
     [Fact]
     public void RequestFileNameIsAngularImmutableFile_SetsCacheControlOneYearImmutable()
     {
-        const string anyAngualarImmutableFileName = "any.abcdef1234567890.any";
+        const string anyAngularImmutableFileName = "any.abcdef1234567890.any";
 
         var staticFileOptionsProductionSetup = new StaticFileOptionsProductionSetup();
         var staticFileOptions = new StaticFileOptions();
@@ -56,7 +56,7 @@ public class StaticFileOptionsProductionSetupTests
         staticFileOptionsProductionSetup.Configure(staticFileOptions);
 
         var fakeHttpContext = CreateFakeHttpContext();
-        var fakeFileInfo = Mock.Of<IFileInfo>(x => x.Name == anyAngualarImmutableFileName);
+        var fakeFileInfo = Mock.Of<IFileInfo>(x => x.Name == anyAngularImmutableFileName);
 
         staticFileOptions.OnPrepareResponse(new StaticFileResponseContext(fakeHttpContext, fakeFileInfo));
 
