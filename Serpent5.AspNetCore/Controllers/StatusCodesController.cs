@@ -39,7 +39,7 @@ public sealed class StatusCodesController : Controller
     // ReSharper disable once InconsistentNaming
     private readonly ClientUIBehaviorOptions clientUIBehaviorOptions;
     private readonly IWebHostEnvironment webHostEnvironment;
-    private readonly IMemoryCache memoryCache;
+    private readonly IMemoryCache? memoryCache;
     private readonly IHttpForwarder? httpForwarder;
     private readonly IViewEngine? viewEngine;
 
@@ -47,7 +47,7 @@ public sealed class StatusCodesController : Controller
         // ReSharper disable once InconsistentNaming
         IOptions<ClientUIBehaviorOptions> clientUIBehaviorOptionsAccessor,
         IWebHostEnvironment webHostEnvironment,
-        IMemoryCache memoryCache,
+        IMemoryCache? memoryCache = null,
         IHttpForwarder? httpForwarder = null,
         // ReSharper disable once SuggestBaseTypeForParameterInConstructor
         // Specific type required for DI resolution.
@@ -137,6 +137,9 @@ public sealed class StatusCodesController : Controller
     private async Task<ContentResult?> GetNotFoundContentAsync()
     {
         if (webHostEnvironment.WebRootFileProvider.GetFileInfo("index.html") is not { Exists: true } fileInfo)
+            return null;
+
+        if (memoryCache is null)
             return null;
 
         var htmlDocument = (await memoryCache.GetOrCreateAsync($"Serpent5.File:{fileInfo.Name}", async _ =>

@@ -20,13 +20,6 @@ public interface IWebApplicationBehaviorBuilder
     IWebApplicationBehaviorBuilder ConfigureWebAPI();
 
     /// <summary>
-    /// Configures the <see cref="IWebApplicationBehaviorBuilder" /> to set up behavior for a Server-Rendered UI (e.g. MVC, RP).
-    /// </summary>
-    /// <returns>A reference to <c>this</c> for a fluent API.</returns>
-    // ReSharper disable once InconsistentNaming
-    IWebApplicationBehaviorBuilder ConfigureServerUI();
-
-    /// <summary>
     /// Configures the <see cref="IWebApplicationBehaviorBuilder" /> to set up behavior for a Client-Rendered UI (e.g. Angular).
     /// </summary>
     /// <returns>A reference to <c>this</c> for a fluent API.</returns>

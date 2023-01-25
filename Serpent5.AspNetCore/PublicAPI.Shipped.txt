@@ -8,7 +8,6 @@ Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiratio
 Microsoft.AspNetCore.Builder.DistributedCacheTicketStoreOptions.SlidingExpiration.set -> void
 Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder
 Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder.ConfigureClientUI(System.Uri! serverAddress) -> Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder!
-Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder.ConfigureServerUI() -> Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder!
 Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder.ConfigureWebAPI() -> Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder!
 Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
 Microsoft.AspNetCore.Builder.WebApplicationBuilderBehaviorExtensions
@@ -22,7 +21,7 @@ Serpent5.AspNetCore.Builder.ClientUIBehaviorOptions.ServerAddress.get -> System.
 Serpent5.AspNetCore.Builder.ClientUIBehaviorOptions.ServerAddress.set -> void
 Serpent5.AspNetCore.Controllers.StatusCodesController
 Serpent5.AspNetCore.Controllers.StatusCodesController.Index(int statusCode) -> System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult!>!
-Serpent5.AspNetCore.Controllers.StatusCodesController.StatusCodesController(Microsoft.Extensions.Options.IOptions<Serpent5.AspNetCore.Builder.ClientUIBehaviorOptions!>! clientUIBehaviorOptionsAccessor, Microsoft.AspNetCore.Hosting.IWebHostEnvironment! webHostEnvironment, Microsoft.Extensions.Caching.Memory.IMemoryCache! memoryCache, Yarp.ReverseProxy.Forwarder.IHttpForwarder? httpForwarder = null, Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine? compositeViewEngine = null) -> void
+Serpent5.AspNetCore.Controllers.StatusCodesController.StatusCodesController(Microsoft.Extensions.Options.IOptions<Serpent5.AspNetCore.Builder.ClientUIBehaviorOptions!>! clientUIBehaviorOptionsAccessor, Microsoft.AspNetCore.Hosting.IWebHostEnvironment! webHostEnvironment, Microsoft.Extensions.Caching.Memory.IMemoryCache? memoryCache = null, Yarp.ReverseProxy.Forwarder.IHttpForwarder? httpForwarder = null, Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine? compositeViewEngine = null) -> void
 Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper
 Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.ScriptNonceTagHelper() -> void
 Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.ViewContext.get -> Microsoft.AspNetCore.Mvc.Rendering.ViewContext!

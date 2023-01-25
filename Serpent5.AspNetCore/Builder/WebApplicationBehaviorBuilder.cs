@@ -27,8 +27,7 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
         None,
         Default = 1,
         WebAPI = 1 << 1,
-        ServerUI = 1 << 2,
-        ClientUI = 1 << 3
+        ClientUI = 1 << 2
         // ReSharper restore InconsistentNaming
     }
 
@@ -45,16 +44,12 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
         {
             [WebApplicationBehavior.Default] = webApplicationBuilder => ConfigureDefault(webApplicationBuilder, appName),
             [WebApplicationBehavior.WebAPI] = ConfigureWebAPI,
-            [WebApplicationBehavior.ServerUI] = ConfigureServerUI,
             [WebApplicationBehavior.ClientUI] = webApplicationBuilder => ConfigureClientUI(webApplicationBuilder, serverAddress!)
         };
     }
 
     public IWebApplicationBehaviorBuilder ConfigureWebAPI()
         => AddBehavior(WebApplicationBehavior.WebAPI);
-
-    public IWebApplicationBehaviorBuilder ConfigureServerUI()
-        => AddBehavior(WebApplicationBehavior.ServerUI);
 
     public IWebApplicationBehaviorBuilder ConfigureClientUI(Uri serverAddress)
     {
@@ -114,14 +109,16 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
 
         ConfigureOptions<KestrelServerOptions, KestrelServerOptionsSetup>(webApplicationBuilder);
         ConfigureOptions<RouteOptions, RouteOptionsSetup>(webApplicationBuilder);
-        ConfigureOptions<HealthCheckOptions, HealthCheckOptionsSetup>(webApplicationBuilder);
+        ConfigureOptions<StaticFileOptions, StaticFileOptionsSetup>(webApplicationBuilder);
         ConfigureOptions<CookiePolicyOptions, CookiePolicyOptionsSetup>(webApplicationBuilder);
+        ConfigureOptions<HealthCheckOptions, HealthCheckOptionsSetup>(webApplicationBuilder);
 
         if (!webApplicationBuilder.Environment.IsDevelopment())
         {
             ConfigureOptions<ExceptionHandlerOptions, ExceptionHandlerOptionsSetup>(webApplicationBuilder);
             ConfigureOptions<HttpsRedirectionOptions, HttpsRedirectionOptionsSetup>(webApplicationBuilder);
             ConfigureOptions<HstsOptions, HstsOptionsSetup>(webApplicationBuilder);
+            ConfigureOptions<StaticFileOptions, StaticFileOptionsProductionSetup>(webApplicationBuilder);
         }
     }
 
@@ -143,27 +140,12 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
     }
 
     // ReSharper disable once InconsistentNaming
-    private static void ConfigureServerUI(WebApplicationBuilder webApplicationBuilder)
-        => ConfigureCommonUI(webApplicationBuilder);
-
-    // ReSharper disable once InconsistentNaming
     private static void ConfigureClientUI(WebApplicationBuilder webApplicationBuilder, Uri serverAddress)
     {
         webApplicationBuilder.Services.Configure<ClientUIBehaviorOptions>(o => o.ServerAddress = serverAddress);
 
         if (webApplicationBuilder.Environment.IsDevelopment())
             webApplicationBuilder.Services.AddHttpForwarder();
-
-        ConfigureCommonUI(webApplicationBuilder);
-    }
-
-    // ReSharper disable once InconsistentNaming
-    private static void ConfigureCommonUI(WebApplicationBuilder webApplicationBuilder)
-    {
-        ConfigureOptions<StaticFileOptions, StaticFileOptionsSetup>(webApplicationBuilder);
-
-        if (!webApplicationBuilder.Environment.IsDevelopment())
-            ConfigureOptions<StaticFileOptions, StaticFileOptionsProductionSetup>(webApplicationBuilder);
     }
 
     private static void ConfigureOptions<TOptions, TOptionsSetup>(WebApplicationBuilder webApplicationBuilder)
