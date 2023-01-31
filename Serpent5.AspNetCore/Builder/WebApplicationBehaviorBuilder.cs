@@ -130,9 +130,9 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
             {
                 o.SupportNonNullableReferenceTypes();
 
-                if (Assembly.GetCallingAssembly() is { } callingAssembly)
+                if (Assembly.GetEntryAssembly() is { } entryAssembly)
                 {
-                    var xmlCommentsFilename = Path.Combine(AppContext.BaseDirectory, $"{callingAssembly.GetName().Name}.xml");
+                    var xmlCommentsFilename = Path.Combine(AppContext.BaseDirectory, $"{entryAssembly.GetName().Name}.xml");
 
                     if (File.Exists(xmlCommentsFilename))
                         o.IncludeXmlComments(xmlCommentsFilename);
