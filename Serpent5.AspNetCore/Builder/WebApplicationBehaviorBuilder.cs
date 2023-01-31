@@ -14,7 +14,6 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using Serpent5.AspNetCore.Builder.Options;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Serpent5.AspNetCore.Builder;
 
@@ -127,12 +126,18 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
     {
         if (webApplicationBuilder.Environment.IsDevelopment())
         {
-            webApplicationBuilder.Services.AddSwaggerGen();
+            webApplicationBuilder.Services.AddSwaggerGen(static o =>
+            {
+                o.SupportNonNullableReferenceTypes();
 
-            var xmlCommentsFilename = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+                if (Assembly.GetCallingAssembly() is { } callingAssembly)
+                {
+                    var xmlCommentsFilename = Path.Combine(AppContext.BaseDirectory, $"{callingAssembly.GetName().Name}.xml");
 
-            if (File.Exists(xmlCommentsFilename))
-                webApplicationBuilder.Services.Configure<SwaggerGenOptions>(o => o.IncludeXmlComments(xmlCommentsFilename));
+                    if (File.Exists(xmlCommentsFilename))
+                        o.IncludeXmlComments(xmlCommentsFilename);
+                }
+            });
         }
 
         ConfigureOptions<Microsoft.AspNetCore.Http.Json.JsonOptions, JsonOptionsSetup>(webApplicationBuilder);
