@@ -4,7 +4,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -50,6 +49,7 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
     public IWebApplicationBehaviorBuilder ConfigureWebAPI()
         => AddBehavior(WebApplicationBehavior.WebAPI);
 
+    // ReSharper disable once ParameterHidesMember
     public IWebApplicationBehaviorBuilder ConfigureClientUI(Uri serverAddress)
     {
         ArgumentNullException.ThrowIfNull(serverAddress);
@@ -107,7 +107,6 @@ internal class WebApplicationBehaviorBuilder : IWebApplicationBehaviorBuilder
         webApplicationBuilder.Services.AddHealthChecks();
 
         ConfigureOptions<KestrelServerOptions, KestrelServerOptionsSetup>(webApplicationBuilder);
-        ConfigureOptions<RouteOptions, RouteOptionsSetup>(webApplicationBuilder);
         ConfigureOptions<StaticFileOptions, StaticFileOptionsSetup>(webApplicationBuilder);
         ConfigureOptions<CookiePolicyOptions, CookiePolicyOptionsSetup>(webApplicationBuilder);
         ConfigureOptions<HealthCheckOptions, HealthCheckOptionsSetup>(webApplicationBuilder);

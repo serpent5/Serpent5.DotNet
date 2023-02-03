@@ -20,7 +20,4 @@
       <_Parameter1>false</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\SolutionSuppressions.cs" Visible="false" />
-  </ItemGroup>
 </Project>

@@ -13,4 +13,6 @@ trim_trailing_whitespace = false
 
 [*.cs]
 indent_size = 4
+csharp_style_namespace_declarations = file_scoped:suggestion
 dotnet_sort_system_directives_first = true
+dotnet_diagnostic.CA1725.severity = none # Parameter names should match base declaration
