@@ -128,10 +128,10 @@ public sealed class StatusCodesController : Controller
         if (forwarderError is ForwarderError.None)
             return new EmptyResult();
 
-        if (HttpContext.Features.Get<IForwarderErrorFeature>()?.Exception is { } ex)
+        if (HttpContext.Features.Get<IForwarderErrorFeature>()?.Exception is { } ex and not OperationCanceledException)
             throw ex;
 
-        return StatusCode(500);
+        return HttpContext.Response.HasStarted ? new EmptyResult() : StatusCode(500);
     }
 
     private async Task<ContentResult?> GetNotFoundContentAsync()
