@@ -317,7 +317,7 @@ public class StatusCodesControllerTests
         var httpRequestMessage = new HttpRequestMessage();
         var httpTransformer = Assert.IsAssignableFrom<HttpTransformer>(Assert.Single(mockHttpForwarder.Invocations, x => x.Method.Name == nameof(IHttpForwarder.SendAsync)).Arguments[^1]);
 
-        await httpTransformer.TransformRequestAsync(httpContext, httpRequestMessage, "__UNUSED__");
+        await httpTransformer.TransformRequestAsync(httpContext, httpRequestMessage, "__UNUSED__", CancellationToken.None);
 
         return httpRequestMessage;
     }
