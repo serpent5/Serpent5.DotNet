@@ -108,6 +108,9 @@ public sealed class StatusCodesController : Controller
 
     private async Task<IActionResult?> ForwardRequestAsync(Uri serverAddress)
     {
+        // https://github.com/microsoft/reverse-proxy/blob/a4febbb51a5cc3431b84d0a28a9ce0eaf30a42d9/src/ReverseProxy/Forwarder/RequestUtilities.cs#L411
+        Response.StatusCode = StatusCodes.Status200OK;
+
         var forwarderError = await httpForwarder!.SendAsync(
             HttpContext,
             serverAddress.AbsoluteUri,
