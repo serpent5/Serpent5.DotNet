@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes
+
 namespace Serpent5.AspNetCore.Middleware;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes
 internal sealed class CacheResponseHeadersMiddleware
 {
     private readonly RequestDelegate nextMiddleware;
@@ -64,4 +65,3 @@ internal sealed class CacheResponseHeadersMiddleware
         return nextMiddleware(httpContext);
     }
 }
-#pragma warning restore CA1812 // Avoid uninstantiated internal classes

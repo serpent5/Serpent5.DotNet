@@ -17,9 +17,10 @@ using Microsoft.Net.Http.Headers;
 using Serpent5.AspNetCore.Builder;
 using Yarp.ReverseProxy.Forwarder;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 namespace Serpent5.AspNetCore.Controllers;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 [Route("/StatusCodes/{statusCode:int}")]
 [AllowAnonymous]
 [ApiExplorerSettings(IgnoreApi = true)]
@@ -64,9 +65,19 @@ public sealed class StatusCodesController : Controller
     {
         var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 
-        // If this endpoint has been requested outside of UseStatusCodePagesWithReExecute, hide it with a 404.
-        if (statusCodeReExecuteFeature is null)
+        if (statusCodeReExecuteFeature is not null)
+        {
+            HttpContext.Request.PathBase = statusCodeReExecuteFeature.OriginalPathBase;
+            HttpContext.Request.Path = statusCodeReExecuteFeature.OriginalPath;
+
+            if (statusCodeReExecuteFeature.OriginalQueryString is not null)
+                HttpContext.Request.QueryString = new QueryString(statusCodeReExecuteFeature.OriginalQueryString);
+        }
+        else
+        {
+            // This endpoint has been requested outside of UseStatusCodePagesWithReExecute, so let's hide it with a 404.
             statusCode = 404;
+        }
 
         var mediaTypeHeaderValues = MediaTypeHeaderValue.ParseList(Request.Headers.Accept);
 
@@ -111,22 +122,7 @@ public sealed class StatusCodesController : Controller
         // https://github.com/microsoft/reverse-proxy/blob/a4febbb51a5cc3431b84d0a28a9ce0eaf30a42d9/src/ReverseProxy/Forwarder/RequestUtilities.cs#L411
         Response.StatusCode = StatusCodes.Status200OK;
 
-        var forwarderError = await httpForwarder!.SendAsync(
-            HttpContext,
-            serverAddress.AbsoluteUri,
-            lazyHttpMessageInvoker.Value,
-            (ctx, httpRequestMessage) =>
-            {
-                if (ctx.Features.Get<IStatusCodeReExecuteFeature>() is not { } statusCodeReExecuteFeature)
-                    return ValueTask.CompletedTask;
-
-                httpRequestMessage.RequestUri = RequestUtilities.MakeDestinationAddress(
-                    serverAddress.AbsoluteUri,
-                    statusCodeReExecuteFeature.OriginalPath,
-                    new QueryString(statusCodeReExecuteFeature.OriginalQueryString));
-
-                return ValueTask.CompletedTask;
-            });
+        var forwarderError = await httpForwarder!.SendAsync(HttpContext, serverAddress.AbsoluteUri, lazyHttpMessageInvoker.Value);
 
         if (forwarderError is ForwarderError.None)
             return new EmptyResult();
@@ -181,4 +177,3 @@ public sealed class StatusCodesController : Controller
         return viewResult;
     }
 }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

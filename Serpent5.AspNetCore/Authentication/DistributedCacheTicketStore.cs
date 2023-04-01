@@ -1,11 +1,11 @@
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes
-
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
+
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes
 
 namespace Serpent5.AspNetCore.Authentication;
 
@@ -62,5 +62,3 @@ internal sealed class DistributedCacheTicketStore : ITicketStore
                 SlidingExpiration = optionsMonitor.CurrentValue.SlidingExpiration
             });
 }
-
-#pragma warning restore CA1812 // Avoid uninstantiated internal classes

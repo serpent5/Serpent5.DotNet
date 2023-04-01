@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Net.Mime;
@@ -55,6 +56,25 @@ public class StatusCodesControllerTests
 
     [Theory]
     [ClassData(typeof(TestStatusCodes))]
+    public async Task RestoresOriginalPathAndQueryString(int statusCode)
+    {
+        const string fakeOriginalPath = "/fake/path";
+        const string fakeOriginalQueryString = "?fake=value";
+
+        var statusCodesController = new StatusCodesController(
+            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment())
+        {
+            ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature(fakeOriginalPath, fakeOriginalQueryString)
+        };
+
+        await statusCodesController.Index(statusCode);
+
+        Assert.Equal(fakeOriginalPath, statusCodesController.HttpContext.Request.Path);
+        Assert.Equal(fakeOriginalQueryString, statusCodesController.HttpContext.Request.QueryString.Value);
+    }
+
+    [Theory]
+    [ClassData(typeof(TestStatusCodes))]
     public async Task ClientAcceptsJSON_ProducesProblemDetails(int statusCode)
     {
         var statusCodesController = new StatusCodesController(
@@ -84,48 +104,6 @@ public class StatusCodesControllerTests
         Assert.IsType<EmptyResult>(await statusCodesController.Index(404));
 
         mockHttpForwarder.Verify(httpForwarderSendAsync, Times.Once);
-    }
-
-    [Fact]
-    public async Task StatusCode404_HttpForwarder_TransformsRequest()
-    {
-        var mockHttpForwarder = new Mock<IHttpForwarder>();
-        var fakeServerAddress = new Uri("https://ui.example.com");
-
-        var statusCodesController = new StatusCodesController(
-            CreateFakeStatusCodesOptions(fakeServerAddress), TestFakes.WebHostEnvironment(), httpForwarder: mockHttpForwarder.Object)
-        {
-            ControllerContext = CreateFakeControllerContextWithStatusCodeReExecuteFeature("/Example", "?Example=Value")
-        };
-
-        await statusCodesController.Index(404);
-
-        var fakeHttpRequestMessage = await TransformHttpForwarderRequestAsync(mockHttpForwarder, statusCodesController.HttpContext);
-
-        var expectedRequestUriBuilder = new UriBuilder(fakeServerAddress)
-        {
-            Path = "Example",
-            Query = "Example=Value"
-        };
-
-        Assert.Equal(expectedRequestUriBuilder.Uri, fakeHttpRequestMessage.RequestUri);
-    }
-
-    [Fact]
-    public async Task StatusCode404_DirectRequest_HttpForwarder_DoesNotTransformRequest()
-    {
-        var mockHttpForwarder = new Mock<IHttpForwarder>();
-        var statusCodesController = new StatusCodesController(
-            CreateFakeStatusCodesOptions(), TestFakes.WebHostEnvironment(), httpForwarder: mockHttpForwarder.Object)
-        {
-            ControllerContext = TestFakes.ControllerContext()
-        };
-
-        await statusCodesController.Index(404);
-
-        var fakeHttpRequestMessage = await TransformHttpForwarderRequestAsync(mockHttpForwarder, statusCodesController.HttpContext);
-
-        Assert.Null(fakeHttpRequestMessage.RequestUri);
     }
 
     [Fact]
@@ -311,17 +289,6 @@ public class StatusCodesControllerTests
     private static readonly Expression<Func<IHttpForwarder, ValueTask<ForwarderError>>> httpForwarderSendAsync =
         x => x.SendAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<HttpMessageInvoker>(), It.IsAny<ForwarderRequestConfig>(), It.IsAny<HttpTransformer>());
 
-    // ReSharper disable once SuggestBaseTypeForParameter
-    private static async Task<HttpRequestMessage> TransformHttpForwarderRequestAsync(Mock<IHttpForwarder> mockHttpForwarder, HttpContext httpContext)
-    {
-        var httpRequestMessage = new HttpRequestMessage();
-        var httpTransformer = Assert.IsAssignableFrom<HttpTransformer>(Assert.Single(mockHttpForwarder.Invocations, x => x.Method.Name == nameof(IHttpForwarder.SendAsync)).Arguments[^1]);
-
-        await httpTransformer.TransformRequestAsync(httpContext, httpRequestMessage, "__UNUSED__", CancellationToken.None);
-
-        return httpRequestMessage;
-    }
-
     private static IWebHostEnvironment CreateFakeWebHostEnvironmentWithFileProvider(IFileProvider? fileProvider = null)
     {
         var webHostEnvironment = TestFakes.WebHostEnvironment();
@@ -355,6 +322,7 @@ public class StatusCodesControllerTests
     }
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
+    [ExcludeFromCodeCoverage]
     private sealed class TestStatusCodes : IEnumerable<object[]>
     {
         private static readonly List<object[]> testStatusCodes = new()
