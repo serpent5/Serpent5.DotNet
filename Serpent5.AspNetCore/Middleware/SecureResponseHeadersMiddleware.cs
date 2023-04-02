@@ -50,7 +50,7 @@ internal sealed class SecureResponseHeadersMiddleware
                 cspBuilder.Append("'none'");
 
             if (clientUIServerAddress is not null)
-                cspBuilder.Append("; trusted-types angular angular#bundler");
+                cspBuilder.Append("; trusted-types default angular angular#bundler");
 
             cspBuilder.Append("; require-trusted-types-for 'script'");
 
