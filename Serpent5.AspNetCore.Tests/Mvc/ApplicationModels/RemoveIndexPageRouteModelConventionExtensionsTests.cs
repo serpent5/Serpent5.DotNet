@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Serpent5.AspNetCore.Mvc.ApplicationModels;
 
 namespace Serpent5.AspNetCore.Tests.Mvc.ApplicationModels;
 
@@ -8,12 +7,14 @@ public class RemoveIndexPageRouteModelConventionTests
     [Theory]
     [InlineData("Index")]
     [InlineData("Example/Index")]
-    public void RouteTemplateIsOrEndsWithIndex_RemovesSelector(string routeTemplate)
+    public void Removes_Selector_When_Route_Template_Is_Or_Ends_With_Index(string routeTemplate)
     {
-        var removeIndexPageRouteModelConvention = new RemoveIndexPageRouteModelConvention();
+        var pageConventionCollection = new PageConventionCollection()
+            .RemoveIndexPageRoutes();
+
         var fakePageRouteModel = CreateFakePageRouteModelWithRouteTemplate(routeTemplate);
 
-        removeIndexPageRouteModelConvention.Apply(fakePageRouteModel);
+        pageConventionCollection.Apply(fakePageRouteModel);
 
         Assert.Empty(fakePageRouteModel.Selectors);
     }
@@ -22,23 +23,27 @@ public class RemoveIndexPageRouteModelConventionTests
     [InlineData("Example")]
     [InlineData("Another/Example")]
     [InlineData("Another/ExampleIndex")]
-    public void RouteTemplateIsNotOrDoesNotEndWithIndex_DoesNotRemoveSelector(string routeTemplate)
+    public void Does_Not_Remove_Selector_When_Route_Template_Is_Not_And_Does_Not_End_With_Index(string routeTemplate)
     {
-        var removeIndexPageRouteModelConvention = new RemoveIndexPageRouteModelConvention();
+        var pageConventionCollection = new PageConventionCollection()
+            .RemoveIndexPageRoutes();
+
         var fakePageRouteModel = CreateFakePageRouteModelWithRouteTemplate(routeTemplate);
 
-        removeIndexPageRouteModelConvention.Apply(fakePageRouteModel);
+        pageConventionCollection.Apply(fakePageRouteModel);
 
         Assert.Single(fakePageRouteModel.Selectors);
     }
 
     [Fact]
-    public void RouteTemplateIsMissing_RemovesSelector()
+    public void Removes_Selector_When_Route_Template_Does_Not_Exist()
     {
-        var removeIndexPageRouteModelConvention = new RemoveIndexPageRouteModelConvention();
+        var pageConventionCollection = new PageConventionCollection()
+            .RemoveIndexPageRoutes();
+
         var fakePageRouteModel = CreateFakePageRouteModelWithRouteTemplate(null);
 
-        removeIndexPageRouteModelConvention.Apply(fakePageRouteModel);
+        pageConventionCollection.Apply(fakePageRouteModel);
 
         Assert.Single(fakePageRouteModel.Selectors);
     }

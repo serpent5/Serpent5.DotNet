@@ -6,33 +6,34 @@ using Microsoft.Extensions.Hosting;
 
 namespace Serpent5.AspNetCore.Tests;
 
-internal static class TestHostBuilder
+internal sealed class TestHostBuilder
 {
-    public static Task<IHost> StartAsync(Action<IApplicationBuilder> configure)
-    {
-        var hostBuilder = new HostBuilder();
+    private readonly List<Action<IServiceCollection>> configureServicesDelegates = new();
+    private readonly List<Action<IApplicationBuilder>> configureDelegates = new();
 
-        return hostBuilder
-            .ConfigureWebHostDefaults(webHostBuilder =>
-            {
-                webHostBuilder.UseTestServer()
-                    .Configure(configure);
-            })
-            .StartAsync();
+    public TestHostBuilder ConfigureServices(Action<IServiceCollection> configureServicesDelegate)
+    {
+        configureServicesDelegates.Add(configureServicesDelegate);
+        return this;
     }
 
-    public static Task<IHost> StartAsync(Action<IApplicationBuilder> configure, Action<IServiceCollection>? configureServices)
+    public TestHostBuilder Configure(Action<IApplicationBuilder> configureDelegate)
+    {
+        configureDelegates.Add(configureDelegate);
+        return this;
+    }
+
+    public Task<IHost> StartAsync()
     {
         var hostBuilder = new HostBuilder();
 
-        if (configureServices is not null)
-            hostBuilder.ConfigureServices(configureServices);
+        configureServicesDelegates.ForEach(x => hostBuilder.ConfigureServices(x));
 
         return hostBuilder
             .ConfigureWebHostDefaults(webHostBuilder =>
             {
-                webHostBuilder.UseTestServer()
-                    .Configure(configure);
+                webHostBuilder.UseTestServer();
+                configureDelegates.ForEach(x => webHostBuilder.Configure(x));
             })
             .StartAsync();
     }

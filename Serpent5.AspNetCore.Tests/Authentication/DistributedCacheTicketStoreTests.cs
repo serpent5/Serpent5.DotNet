@@ -1,30 +1,27 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Moq;
-using Serpent5.AspNetCore.Authentication;
 
 namespace Serpent5.AspNetCore.Tests.Authentication;
 
 public class DistributedCacheTicketStoreTests
 {
-    private const string anyAuthenticationScheme = "anyString";
-    private const string anySessionKey = "anyString";
+    private const string fakeAuthenticationScheme = TestFakes.String;
+    private const string fakeSessionKey = TestFakes.String;
 
-    private static readonly DateTime currentDateTime = new(2000, 1, 1, 12, 0, 0, DateTimeKind.Utc);
-
-    private static readonly TimeSpan anyExpires = TimeSpan.FromSeconds(1);
-    private static readonly TimeSpan anySlidingExpiration = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan fakeExpires = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan fakeSlidingExpiration = TimeSpan.FromSeconds(1);
 
     [Fact]
-    public async Task StoreAsync_CreatesValidSessionKey()
+    public async Task StoreAsync_Creates_A_Session()
     {
         const int expectedSessionKeyByteCount = 32;
 
-        var distributedCacheTicketStore = new DistributedCacheTicketStore(Mock.Of<IDistributedCache>(), CreateFakeOptionsMonitor());
-        var fakeAuthenticationTicket = new AuthenticationTicket(new ClaimsPrincipal(), anyAuthenticationScheme);
+        var distributedCacheTicketStore = CreateDistributedCacheTicketStore();
+        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket();
 
         var sessionKey = await distributedCacheTicketStore.StoreAsync(fakeAuthenticationTicket);
 
@@ -33,14 +30,14 @@ public class DistributedCacheTicketStoreTests
     }
 
     [Fact]
-    public async Task StoreAsync_StoresInDistributedCache()
+    public async Task StoreAsync_Stores_Value_In_DistributedCache()
     {
         var mockDistributedCache = new Mock<IDistributedCache>();
         var fakeDistributedCacheTicketStoreOptions = new DistributedCacheTicketStoreOptions();
-        var fakeOptionsMonitor = CreateFakeOptionsMonitor(fakeDistributedCacheTicketStoreOptions);
 
-        var distributedCacheTicketStore = new DistributedCacheTicketStore(mockDistributedCache.Object, fakeOptionsMonitor);
-        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket(fakeDistributedCacheTicketStoreOptions.Expires);
+        var distributedCacheTicketStore = CreateDistributedCacheTicketStore(fakeDistributedCacheTicketStoreOptions, mockDistributedCache.Object);
+
+        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket();
 
         var sessionKey = await distributedCacheTicketStore.StoreAsync(fakeAuthenticationTicket);
 
@@ -48,17 +45,17 @@ public class DistributedCacheTicketStoreTests
     }
 
     [Fact]
-    public async Task StoreAsync_StoresInDistributedCacheWithSpecifiedOptions()
+    public async Task StoreAsync_Stores_Value_In_DistributedCache_With_Specified_Options()
     {
         var mockDistributedCache = new Mock<IDistributedCache>();
         var fakeDistributedCacheTicketStoreOptions = new DistributedCacheTicketStoreOptions
         {
-            Expires = anyExpires,
-            SlidingExpiration = anySlidingExpiration
+            Expires = fakeExpires,
+            SlidingExpiration = fakeSlidingExpiration
         };
 
-        var distributedCacheTicketStore = new DistributedCacheTicketStore(mockDistributedCache.Object, CreateFakeOptionsMonitor(fakeDistributedCacheTicketStoreOptions));
-        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket(fakeDistributedCacheTicketStoreOptions.Expires);
+        var distributedCacheTicketStore = CreateDistributedCacheTicketStore(fakeDistributedCacheTicketStoreOptions, mockDistributedCache.Object);
+        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket();
 
         var sessionKey = await distributedCacheTicketStore.StoreAsync(fakeAuthenticationTicket);
 
@@ -66,71 +63,81 @@ public class DistributedCacheTicketStoreTests
     }
 
     [Fact]
-    public async Task RetrieveAsync_RetrievesAuthenticationTicketFromCache()
+    public async Task RetrieveAsync_Retrieves_AuthenticationTicket_From_Cache()
     {
         var mockDistributedCache = new Mock<IDistributedCache>();
-        var distributedCacheTicketStore = new DistributedCacheTicketStore(mockDistributedCache.Object, CreateFakeOptionsMonitor());
 
         mockDistributedCache
-            .Setup(x => x.GetAsync(anySessionKey, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetAsync(fakeSessionKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(value: null);
 
-        var authenticationTicket = await distributedCacheTicketStore.RetrieveAsync(anySessionKey);
+        var distributedCacheTicketStore = CreateDistributedCacheTicketStore(distributedCache: mockDistributedCache.Object);
+
+        var authenticationTicket = await distributedCacheTicketStore.RetrieveAsync(fakeSessionKey);
 
         Assert.Null(authenticationTicket);
     }
 
     [Fact]
-    public async Task RenewAsync_RenewsInDistributedCache()
+    public async Task RenewAsync_Renews_Value_In_DistributedCache()
     {
         var mockDistributedCache = new Mock<IDistributedCache>();
         var fakeDistributedCacheTicketStoreOptions = new DistributedCacheTicketStoreOptions();
 
-        var distributedCacheTicketStore = new DistributedCacheTicketStore(mockDistributedCache.Object, CreateFakeOptionsMonitor(fakeDistributedCacheTicketStoreOptions));
-        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket(fakeDistributedCacheTicketStoreOptions.Expires);
+        var distributedCacheTicketStore = CreateDistributedCacheTicketStore(fakeDistributedCacheTicketStoreOptions, mockDistributedCache.Object);
+        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket();
 
-        await distributedCacheTicketStore.RenewAsync(anySessionKey, fakeAuthenticationTicket);
+        await distributedCacheTicketStore.RenewAsync(fakeSessionKey, fakeAuthenticationTicket);
 
-        VerifyDistributedCacheSetAsync(mockDistributedCache, anySessionKey, fakeAuthenticationTicket, fakeDistributedCacheTicketStoreOptions.SlidingExpiration);
+        VerifyDistributedCacheSetAsync(mockDistributedCache, fakeSessionKey, fakeAuthenticationTicket, fakeDistributedCacheTicketStoreOptions.SlidingExpiration);
     }
 
     [Fact]
-    public async Task RenewAsync_RenewsInDistributedCacheWithSpecifiedOptions()
+    public async Task RenewAsync_Renews_Value_In_DistributedCache_With_Specified_Options()
     {
         var mockDistributedCache = new Mock<IDistributedCache>();
         var fakeDistributedCacheTicketStoreOptions = new DistributedCacheTicketStoreOptions
         {
-            Expires = anyExpires,
-            SlidingExpiration = anySlidingExpiration
+            Expires = fakeExpires,
+            SlidingExpiration = fakeSlidingExpiration
         };
 
-        var distributedCacheTicketStore = new DistributedCacheTicketStore(mockDistributedCache.Object, CreateFakeOptionsMonitor(fakeDistributedCacheTicketStoreOptions));
-        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket(fakeDistributedCacheTicketStoreOptions.Expires);
+        var distributedCacheTicketStore = CreateDistributedCacheTicketStore(fakeDistributedCacheTicketStoreOptions, mockDistributedCache.Object);
+        var fakeAuthenticationTicket = CreateFakeAuthenticationTicket();
 
-        await distributedCacheTicketStore.RenewAsync(anySessionKey, fakeAuthenticationTicket);
+        await distributedCacheTicketStore.RenewAsync(fakeSessionKey, fakeAuthenticationTicket);
 
-        VerifyDistributedCacheSetAsync(mockDistributedCache, anySessionKey, fakeAuthenticationTicket, fakeDistributedCacheTicketStoreOptions.SlidingExpiration);
+        VerifyDistributedCacheSetAsync(mockDistributedCache, fakeSessionKey, fakeAuthenticationTicket, fakeDistributedCacheTicketStoreOptions.SlidingExpiration);
     }
 
     [Fact]
-    public async Task RemoveAsync_RemovesAuthenticationTicketFromCache()
+    public async Task RemoveAsync_Removes_Value_From_Cache()
     {
         var mockDistributedCache = new Mock<IDistributedCache>();
-        var distributedCacheTicketStore = new DistributedCacheTicketStore(mockDistributedCache.Object, CreateFakeOptionsMonitor());
+        var distributedCacheTicketStore = CreateDistributedCacheTicketStore(distributedCache: mockDistributedCache.Object);
 
-        await distributedCacheTicketStore.RemoveAsync(anySessionKey);
+        await distributedCacheTicketStore.RemoveAsync(fakeSessionKey);
 
-        mockDistributedCache.Verify(x => x.RemoveAsync(anySessionKey, It.IsAny<CancellationToken>()));
+        mockDistributedCache.Verify(x => x.RemoveAsync(fakeSessionKey, It.IsAny<CancellationToken>()));
     }
 
     private static IOptionsMonitor<DistributedCacheTicketStoreOptions> CreateFakeOptionsMonitor(DistributedCacheTicketStoreOptions? distributedCacheTicketStoreOptions = null)
         => TestFakes.OptionsMonitor(distributedCacheTicketStoreOptions);
 
-    private static AuthenticationTicket CreateFakeAuthenticationTicket(TimeSpan expiresUtc)
-        => new(
-            new ClaimsPrincipal(),
-            new AuthenticationProperties { ExpiresUtc = currentDateTime.Add(expiresUtc) },
-            anyAuthenticationScheme);
+    private static AuthenticationTicket CreateFakeAuthenticationTicket()
+        => new(new ClaimsPrincipal(), new AuthenticationProperties(), fakeAuthenticationScheme);
+
+    private static ITicketStore CreateDistributedCacheTicketStore(DistributedCacheTicketStoreOptions? distributedCacheTicketStoreOptions = null, IDistributedCache? distributedCache = null)
+    {
+        var serviceCollection = new ServiceCollection()
+            .AddSingleton(CreateFakeOptionsMonitor(distributedCacheTicketStoreOptions))
+            .AddSingleton(distributedCache ?? Mock.Of<IDistributedCache>())
+            .AddCookiesDistributedCacheTicketStore();
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        return serviceProvider.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>()
+            .Get(CookieAuthenticationDefaults.AuthenticationScheme).SessionStore!;
+    }
 
     private static void VerifyDistributedCacheSetAsync(
         Mock<IDistributedCache> mockDistributedCache, string expectedSessionKey, AuthenticationTicket expectedAuthenticationTicket, TimeSpan expectedSlidingExpiration)
@@ -138,7 +145,7 @@ public class DistributedCacheTicketStoreTests
             x => x.SetAsync(
                 expectedSessionKey,
                 TicketSerializer.Default.Serialize(expectedAuthenticationTicket),
-                // ReSharper disable once VariableHidesOuterVariable
-                It.Is<DistributedCacheEntryOptions>(x => x.SlidingExpiration == expectedSlidingExpiration && x.AbsoluteExpiration == expectedAuthenticationTicket.Properties.ExpiresUtc),
+                It.Is<DistributedCacheEntryOptions>(
+                    xOptions => xOptions.SlidingExpiration == expectedSlidingExpiration && xOptions.AbsoluteExpiration == expectedAuthenticationTicket.Properties.ExpiresUtc),
                 It.IsAny<CancellationToken>()));
 }

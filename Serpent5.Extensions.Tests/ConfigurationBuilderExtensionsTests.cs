@@ -7,7 +7,7 @@ public class ConfigurationBuilderExtensionsTests
     private const string environmentSettingName = "environmentSetting";
 
     [Fact]
-    public void UsesAppSettingsValue()
+    public void AddHostingDefaults_Reads_From_AppSettings()
     {
         var configurationRoot = CreateConfigurationWithHostingDefaults();
 
@@ -15,7 +15,7 @@ public class ConfigurationBuilderExtensionsTests
     }
 
     [Fact]
-    public void UsesAppSettingsEnvironmentValue()
+    public void AddHostingDefaults_Reads_From_AppSettings_Production()
     {
         var configurationRoot = CreateConfigurationWithHostingDefaults();
 
@@ -23,7 +23,7 @@ public class ConfigurationBuilderExtensionsTests
     }
 
     [Fact]
-    public void UsesEnvironmentVariablesValue()
+    public void AddHostingDefaults_Reads_From_Environment_Variables()
     {
         const string settingName = "environmentVariableSetting";
         const string settingValue = "environmentVariableValue";
@@ -36,7 +36,7 @@ public class ConfigurationBuilderExtensionsTests
     }
 
     [Fact]
-    public void UsesCommandLineValue()
+    public void AddHostingDefaults_Reads_From_Command_Line_Arguments()
     {
         const string settingName = "commandLineSetting";
         const string settingValue = "commandLineValue";
@@ -50,7 +50,7 @@ public class ConfigurationBuilderExtensionsTests
     }
 
     [Fact]
-    public void UsesAppSettingsEnvironmentOverrideValue()
+    public void AddHostingDefaults_AppSettings_Production_Overrides_AppSettings()
     {
         var configurationRoot = CreateConfigurationWithHostingDefaults();
 
@@ -58,7 +58,7 @@ public class ConfigurationBuilderExtensionsTests
     }
 
     [Fact]
-    public void UsesEnvironmentVariableOverrideValue()
+    public void AddHostingDefaults_Environment_Variables_Override_AppSettings_Production()
     {
         const string overrideValue = "environmentVariableOverrideValue";
         Environment.SetEnvironmentVariable(environmentSettingName, overrideValue);
@@ -76,15 +76,25 @@ public class ConfigurationBuilderExtensionsTests
     }
 
     [Fact]
-    public void UsesCommandLineVariableOverrideValue()
+    public void AddHostingDefaults_Command_Line_Arguments_Override_Environment_Variables()
     {
-        const string overrideValue = "commandLineOverrideValue";
-        var configurationRoot = CreateConfigurationWithHostingDefaults(new[]
-        {
-            $"--{environmentSettingName}={overrideValue}"
-        });
+        const string environmentVariableOverrideValue = "environmentVariableOverrideValue";
+        Environment.SetEnvironmentVariable(environmentSettingName, environmentVariableOverrideValue);
 
-        Assert.Equal(overrideValue, configurationRoot[environmentSettingName]);
+        try
+        {
+            const string overrideValue = "commandLineOverrideValue";
+            var configurationRoot = CreateConfigurationWithHostingDefaults(new[]
+            {
+                $"--{environmentSettingName}={overrideValue}"
+            });
+
+            Assert.Equal(overrideValue, configurationRoot[environmentSettingName]);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(environmentSettingName, null);
+        }
     }
 
     private static IConfiguration CreateConfigurationWithHostingDefaults(string[]? args = null)

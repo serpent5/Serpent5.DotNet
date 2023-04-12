@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Options;
 
-namespace Serpent5.AspNetCore.Builder.Options;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 
 internal class HstsOptionsSetup : IConfigureOptions<HstsOptions>
 {

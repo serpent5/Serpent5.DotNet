@@ -1,5 +1,4 @@
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
 
 // ReSharper disable once CheckNamespace
@@ -8,7 +7,6 @@ namespace Microsoft.Extensions.Configuration;
 /// <summary>
 /// Extension methods for adding configuration sources that mimic the defaults set up by <c>Host</c>, <c>WebHost</c>, and <c>WebApplication</c>.
 /// </summary>
-[PublicAPI]
 public static class ConfigurationBuilderExtensions
 {
     /// <summary>

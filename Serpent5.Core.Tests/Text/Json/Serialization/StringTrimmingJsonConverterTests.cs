@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Serpent5.Core.Tests.Text.Json.Serialization;
 
@@ -11,63 +12,63 @@ public class StringTrimmingJsonConverterTests
         => jsonSerializerOptions.AddStringTrimmingJsonConverter();
 
     [Fact]
-    public void Deserialize_SetsStringValue()
+    public void Deserialize_Reads_Value()
     {
-        var model = JsonSerializer.Deserialize<Model>("{ \"Value\": \"anyString\" }", jsonSerializerOptions);
+        var testModel = JsonSerializer.Deserialize<TestModel>("{ \"Value\": \"anyString\" }", jsonSerializerOptions);
 
-        Assert.NotNull(model);
-        Assert.Equal("anyString", model.Value);
+        Assert.NotNull(testModel);
+        Assert.Equal("anyString", testModel.Value);
     }
 
     [Fact]
-    public void Deserialize_TrimsAndSetsStringValue()
+    public void Deserialize_Reads_And_Trims_Value()
     {
-        var model = JsonSerializer.Deserialize<Model>("{ \"Value\": \" anyStringWithWhiteSpace \" }", jsonSerializerOptions);
+        var testModel = JsonSerializer.Deserialize<TestModel>("{ \"Value\": \" anyStringWithWhiteSpace \" }", jsonSerializerOptions);
 
-        Assert.NotNull(model);
-        Assert.Equal("anyStringWithWhiteSpace", model.Value);
+        Assert.NotNull(testModel);
+        Assert.Equal("anyStringWithWhiteSpace", testModel.Value);
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Deserialize_StringIsEmptyOrWhiteSpace_SetsStringValueToNull(string v)
+    public void Deserialize_Reads_String_Value_As_Null_When_Value_Is_Empty_Or_WhiteSpace(string v)
     {
-        var model = JsonSerializer.Deserialize<Model>($"{{ \"Value\": \"{v}\" }}", jsonSerializerOptions);
+        var testModel = JsonSerializer.Deserialize<TestModel>($"{{ \"Value\": \"{v}\" }}", jsonSerializerOptions);
 
-        Assert.NotNull(model);
-        Assert.Null(model.Value);
+        Assert.NotNull(testModel);
+        Assert.Null(testModel.Value);
     }
 
     [Fact]
-    public void Serialize_GetsStringValue()
+    public void Serialize_Writes_Value()
     {
-        var modelJson = JsonSerializer.Serialize(new Model("anyString"), jsonSerializerOptions);
-        var modelJsonObject = JsonSerializer.Deserialize<JsonObject>(modelJson);
+        var testModelJson = JsonSerializer.Serialize(new TestModel("anyString"), jsonSerializerOptions);
+        var testModelJsonObject = JsonSerializer.Deserialize<JsonObject>(testModelJson);
 
-        Assert.NotNull(modelJsonObject);
-        Assert.Equal("anyString", modelJsonObject["Value"]?.GetValue<string>());
+        Assert.NotNull(testModelJsonObject);
+        Assert.Equal("anyString", testModelJsonObject["Value"]?.GetValue<string>());
     }
 
     [Fact]
-    public void Serialize_GetsAndTrimsStringValue()
+    public void Serialize_Trims_And_Writes_Value()
     {
-        var modelJson = JsonSerializer.Serialize(new Model(" anyString "), jsonSerializerOptions);
-        var modelJsonObject = JsonSerializer.Deserialize<JsonObject>(modelJson);
+        var testModelJson = JsonSerializer.Serialize(new TestModel(" anyString "), jsonSerializerOptions);
+        var testModelJsonObject = JsonSerializer.Deserialize<JsonObject>(testModelJson);
 
-        Assert.NotNull(modelJsonObject);
-        Assert.Equal("anyString", modelJsonObject["Value"]?.GetValue<string>());
+        Assert.NotNull(testModelJsonObject);
+        Assert.Equal("anyString", testModelJsonObject["Value"]?.GetValue<string>());
     }
 
     [Fact]
-    public void Serialize_StringIsNull_GetsStringValueAsNull()
+    public void Serialize_Writes_Null_Value_As_Null()
     {
-        var modelJson = JsonSerializer.Serialize(new Model(null!), jsonSerializerOptions);
-        var modelJsonObject = JsonSerializer.Deserialize<JsonObject>(modelJson);
+        var testModelJson = JsonSerializer.Serialize(new TestModel(null!), jsonSerializerOptions);
+        var testModelJsonObject = JsonSerializer.Deserialize<JsonObject>(testModelJson);
 
-        Assert.NotNull(modelJsonObject);
-        Assert.Null(modelJsonObject["Value"]?.GetValue<string>());
+        Assert.NotNull(testModelJsonObject);
+        Assert.Null(testModelJsonObject["Value"]?.GetValue<string>());
     }
 
-    private sealed record Model(string Value);
+    private sealed record TestModel(string Value);
 }

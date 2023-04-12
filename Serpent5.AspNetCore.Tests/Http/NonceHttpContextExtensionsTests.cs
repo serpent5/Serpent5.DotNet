@@ -5,19 +5,9 @@ namespace Serpent5.AspNetCore.Tests.Http;
 public class NonceHttpContextExtensionsTests
 {
     [Fact]
-    public void TryGetNonce_HasNoNonce()
+    public void GetNonce_Creates_Nonce()
     {
-        var httpContext = new DefaultHttpContext();
-
-        var nonceExists = httpContext.TryGetNonce(out _);
-
-        Assert.False(nonceExists);
-    }
-
-    [Fact]
-    public void GetNonce_CreatesNonce()
-    {
-        var httpContext = new DefaultHttpContext();
+        var httpContext = TestFakes.HttpContext();
 
         var nonceValue = httpContext.GetNonce();
 
@@ -26,9 +16,20 @@ public class NonceHttpContextExtensionsTests
     }
 
     [Fact]
-    public void TryGetNonce_AfterGetNonce_HasValue()
+    public void GetNonce_Creates_Nonce_Once()
     {
-        var httpContext = new DefaultHttpContext();
+        var httpContext = TestFakes.HttpContext();
+
+        var nonceValue = httpContext.GetNonce();
+        var nonceValueAgain = httpContext.GetNonce();
+
+        Assert.Equal(nonceValueAgain, nonceValue);
+    }
+
+    [Fact]
+    public void TryGetNonce_Gets_Created_Nonce()
+    {
+        var httpContext = TestFakes.HttpContext();
 
         httpContext.GetNonce();
         var nonceExists = httpContext.TryGetNonce(out var nonceValue);
@@ -39,13 +40,12 @@ public class NonceHttpContextExtensionsTests
     }
 
     [Fact]
-    public void GetNonce_AfterGetNonce_HasSameValue()
+    public void TryGetNonce_Does_Not_Create_Nonce()
     {
-        var httpContext = new DefaultHttpContext();
+        var httpContext = TestFakes.HttpContext();
 
-        var nonceValue = httpContext.GetNonce();
-        var nonceValueAgain = httpContext.GetNonce();
+        var nonceExists = httpContext.TryGetNonce(out _);
 
-        Assert.Equal(nonceValueAgain, nonceValue);
+        Assert.False(nonceExists);
     }
 }

@@ -1,11 +1,9 @@
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes
-
-namespace Serpent5.AspNetCore.Middleware;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.AspNetCore.Builder;
 
 internal sealed class CacheResponseHeadersMiddleware
 {
@@ -14,7 +12,6 @@ internal sealed class CacheResponseHeadersMiddleware
     public CacheResponseHeadersMiddleware(RequestDelegate nextMiddleware)
         => this.nextMiddleware = nextMiddleware;
 
-    [UsedImplicitly]
     public Task InvokeAsync(HttpContext httpContext)
     {
         ArgumentNullException.ThrowIfNull(httpContext);
@@ -29,7 +26,7 @@ internal sealed class CacheResponseHeadersMiddleware
             // According to MDN (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control):
             // - no-store means "Don't cache this, ever".
             // - no-cache means "Check with me before you use the version you cached".
-            // In this scenario, let's clear the "Cache-Control" header before we continue.
+            // Because this combination appears to be illogical, let's clear the "Cache-Control" header before we continue.
             if (httpResponseTypedHeaders.CacheControl is { NoCache: true, NoStore: true })
                 httpResponseTypedHeaders.CacheControl = null;
 

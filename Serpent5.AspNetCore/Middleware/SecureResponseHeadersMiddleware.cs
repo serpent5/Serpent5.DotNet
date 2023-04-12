@@ -1,35 +1,30 @@
 using System.Globalization;
 using System.Net.Mime;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Serpent5.AspNetCore.Builder;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes
+// ReSharper disable once CheckNamespace
+namespace Microsoft.AspNetCore.Builder;
 
-namespace Serpent5.AspNetCore.Middleware;
+using static MediaTypeNames;
 
 internal sealed class SecureResponseHeadersMiddleware
 {
-    private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new(MediaTypeNames.Text.Html);
+    private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new(Text.Html);
 
     private readonly RequestDelegate nextMiddleware;
 
     public SecureResponseHeadersMiddleware(RequestDelegate nextMiddleware)
         => this.nextMiddleware = nextMiddleware;
 
-    [UsedImplicitly]
-    // ReSharper disable once InconsistentNaming
-    public Task InvokeAsync(HttpContext httpContext, IOptionsSnapshot<ClientUIBehaviorOptions> clientUIBehaviorOptionsAccessor)
+    public Task InvokeAsync(HttpContext httpContext)
     {
         ArgumentNullException.ThrowIfNull(httpContext);
 
-        httpContext.Response.OnStarting(static stateAsObject =>
+        httpContext.Response.OnStarting(static httpContextAsObject =>
         {
-            // ReSharper disable once InconsistentNaming
-            var (httpContext, clientUIServerAddress) = (ValueTuple<HttpContext, Uri?>)stateAsObject;
+            var httpContext = (HttpContext)httpContextAsObject;
             var httpResponse = httpContext.Response;
             var httpResponseHeaders = httpResponse.Headers;
 
@@ -49,21 +44,18 @@ internal sealed class SecureResponseHeadersMiddleware
             else
                 cspBuilder.Append("'none'");
 
-            if (clientUIServerAddress is not null)
-                cspBuilder.Append("; trusted-types default angular angular#bundler");
-
             cspBuilder.Append("; require-trusted-types-for 'script'");
 
             httpResponse.Headers["Content-Security-Policy"] = cspBuilder.ToString();
 
             // https://github.com/w3c/webappsec-permissions-policy/blob/main/features.md
             httpResponseHeaders["Permissions-Policy"] =
-                "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()";
+                "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), bluetooth=(), camera=(), ch-ua=(), ch-ua-arch=(), ch-ua-bitness=(), ch-ua-full-version=(), ch-ua-full-version-list=(), ch-ua-mobile=(), ch-ua-model=(), ch-ua-platform=(), ch-ua-platform-version=(), ch-ua-wow64=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), web-share=()";
 
             httpResponseHeaders["Referrer-Policy"] = "strict-origin-when-cross-origin";
 
             return Task.CompletedTask;
-        }, (httpContext, clientUIBehaviorOptionsAccessor.Value.ServerAddress));
+        }, httpContext);
 
         return nextMiddleware(httpContext);
     }

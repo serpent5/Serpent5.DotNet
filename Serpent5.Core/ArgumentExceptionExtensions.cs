@@ -1,15 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
 namespace System;
 
-using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
-
 /// <summary>
 /// Extensions for throwing <see cref="ArgumentNullException" /> and <see cref="ArgumentException" />.
 /// </summary>
-[PublicAPI]
 public static class ArgumentExceptionExtensions
 {
     /// <summary>

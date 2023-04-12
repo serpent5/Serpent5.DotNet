@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+using System.Security.Claims;
 using Microsoft.ApplicationInsights.Extensibility;
 using Serpent5.AspNetCore.ApplicationInsights;
 
@@ -8,7 +8,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// <see cref="IServiceCollection" /> extension methods for Application Insights.
 /// </summary>
-[PublicAPI]
 public static class ApplicationInsightsServiceCollectionExtensions
 {
     /// <summary>
@@ -16,7 +15,7 @@ public static class ApplicationInsightsServiceCollectionExtensions
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add the service to.</param>
     /// <param name="cloudRoleName">The Cloud Role Name to use in Application Insights.</param>
-    /// <returns>A reference to the provided <see cref="IServiceCollection" /> for a fluent API.</returns>
+    /// <returns>A reference to <paramref name="serviceCollection" /> for a fluent API.</returns>
     public static IServiceCollection AddCloudRoleNameTelemetryInitializer(this IServiceCollection serviceCollection, string cloudRoleName)
     {
         ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(cloudRoleName);
@@ -26,16 +25,11 @@ public static class ApplicationInsightsServiceCollectionExtensions
 
     /// <summary>
     /// Adds an <see cref="ITelemetryInitializer" /> that sets the Authenticated User ID in Application Insights to the
-    /// <see cref="Microsoft.AspNetCore.Http.HttpContext.User" />'s <paramref name="claimType" /> claim value.
+    /// <see cref="Microsoft.AspNetCore.Http.HttpContext.User" />'s <see cref="ClaimTypes.NameIdentifier" /> claim value.
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add the service to.</param>
-    /// <param name="claimType">The Claim Type to use for the Authenticated User ID.</param>
-    /// <returns>A reference to the provided <see cref="IServiceCollection" /> for a fluent API.</returns>
-    public static IServiceCollection AddAuthenticatedUserIdTelemetryInitializer(this IServiceCollection serviceCollection, string claimType)
-    {
-        ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(claimType);
-
-        return serviceCollection.AddSingleton<ITelemetryInitializer>(
-            sp => ActivatorUtilities.CreateInstance<AuthenticatedUserIdTelemetryInitializer>(sp, claimType));
-    }
+    /// <returns>A reference to <paramref name="serviceCollection" /> for a fluent API.</returns>
+    public static IServiceCollection AddAuthenticatedUserIdTelemetryInitializer(this IServiceCollection serviceCollection)
+        => serviceCollection.AddSingleton<ITelemetryInitializer>(
+            sp => ActivatorUtilities.CreateInstance<AuthenticatedUserIdTelemetryInitializer>(sp, ClaimTypes.NameIdentifier));
 }

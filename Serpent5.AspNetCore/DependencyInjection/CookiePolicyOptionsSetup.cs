@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Serpent5.AspNetCore.Builder.Options;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 
 internal class CookiePolicyOptionsSetup : IConfigureOptions<CookiePolicyOptions>
 {

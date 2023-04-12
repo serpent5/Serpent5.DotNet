@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Serpent5.AspNetCore.Builder.Options;
 
-namespace Serpent5.AspNetCore.Tests.Builder.Options;
+namespace Serpent5.AspNetCore.Tests.DependencyInjection;
 
 public class ExceptionHandlerOptionsSetupTests
 {
     [Fact]
-    public async Task DoesNotChangeStatusCode()
+    public async Task Does_Not_Change_StatusCode()
     {
         var testHost = await StartTestHostWithExceptionAsync();
 
@@ -21,7 +20,7 @@ public class ExceptionHandlerOptionsSetupTests
     }
 
     [Fact]
-    public async Task DoesNotProduceContent()
+    public async Task Does_Not_Produce_Content()
     {
         var testHost = await StartTestHostWithExceptionAsync();
 
@@ -31,14 +30,14 @@ public class ExceptionHandlerOptionsSetupTests
     }
 
     private static Task<IHost> StartTestHostWithExceptionAsync()
-        => TestHostBuilder.StartAsync(
-            applicationBuilder =>
+        => new TestHostBuilder()
+            .ConfigureServices(static serviceCollection => serviceCollection.AddTransient<IConfigureOptions<ExceptionHandlerOptions>, ExceptionHandlerOptionsSetup>())
+            .Configure(static applicationBuilder =>
             {
-
                 applicationBuilder.UseExceptionHandler();
 #pragma warning disable CA2201 // Do not raise reserved exception types
                 applicationBuilder.Run(_ => throw new Exception(string.Empty));
 #pragma warning restore CA2201 // Do not raise reserved exception types
-            },
-            serviceCollection => serviceCollection.AddTransient<IConfigureOptions<ExceptionHandlerOptions>, ExceptionHandlerOptionsSetup>());
+            })
+            .StartAsync();
 }

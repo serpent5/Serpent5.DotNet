@@ -1,7 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace Serpent5.Core.Text.Json.Serialization;
+// ReSharper disable once CheckNamespace
+namespace System.Text.Json.Serialization;
 
 internal sealed class StringTrimmingJsonConverter : JsonConverter<string>
 {
@@ -20,7 +18,5 @@ internal sealed class StringTrimmingJsonConverter : JsonConverter<string>
 
         if (stringValue is not null)
             jsonWriter.WriteStringValue(stringValue.Trim().AsSpan());
-        else
-            jsonWriter.WriteNullValue();
     }
 }

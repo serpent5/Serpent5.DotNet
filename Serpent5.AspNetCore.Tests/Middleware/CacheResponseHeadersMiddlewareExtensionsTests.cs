@@ -5,13 +5,12 @@ using Microsoft.Net.Http.Headers;
 
 namespace Serpent5.AspNetCore.Tests.Middleware;
 
-public class CacheResponseHeadersMiddlewareTests
+public class CacheResponseHeadersMiddlewareExtensionsTests
 {
-    private static readonly DateTimeOffset anyDateTimeOffset = DateTimeOffset.MinValue;
     private const string anyETag = "*";
 
     [Fact]
-    public async Task SetsCacheControlToNoStore()
+    public async Task Sets_CacheControl_To_NoStore()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync();
 
@@ -19,7 +18,7 @@ public class CacheResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task CacheControlIsSet_DoesNotSetCacheControlToNoStore()
+    public async Task Does_Not_Change_CacheControl_When_Set()
     {
         const string anyUnaffectedCacheControlValue = "public, no-cache";
 
@@ -30,7 +29,7 @@ public class CacheResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task CacheControlIsSetToNoCacheNoStore_SetsCacheControlToNoStore()
+    public async Task Removes_NoCache_From_CacheControl_When_Set_To_NoCache_NoStore()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(
             static ctx => ctx.Response.Headers.CacheControl = "no-cache, no-store");
@@ -39,7 +38,7 @@ public class CacheResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task CacheControlIsImmutable_RemovesETag()
+    public async Task Removes_ETag_When_CacheControl_Is_Set_To_Immutable()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(static ctx =>
         {
@@ -51,11 +50,11 @@ public class CacheResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task CacheControlIsImmutable_RemovesLastModified()
+    public async Task Removes_LastModified_When_CacheControl_Is_Set_To_Immutable()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(static ctx =>
         {
-            ctx.Response.GetTypedHeaders().LastModified = anyDateTimeOffset;
+            ctx.Response.GetTypedHeaders().LastModified = TestFakes.DateTimeOffset();
             ctx.Response.Headers.CacheControl = "immutable";
         });
 
@@ -63,19 +62,19 @@ public class CacheResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task ETagIsSet_RemovesLastModified()
+    public async Task Removes_LastModified_When_ETag_Is_Set()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(static ctx =>
         {
             ctx.Response.Headers.ETag = anyETag;
-            ctx.Response.Headers.LastModified = anyDateTimeOffset.ToString("R");
+            ctx.Response.Headers.LastModified = TestFakes.DateTimeOffset().ToString("R");
         });
 
         Assert.False(httpResponseMessage.Content.Headers.Contains(HeaderNames.LastModified));
     }
 
     [Fact]
-    public async Task ETagIsSet_SetsCacheControlToNoCache()
+    public async Task Sets_CacheControl_To_NoCache_When_ETag_Is_Set()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(
             static ctx => ctx.Response.Headers.ETag = anyETag);
@@ -84,25 +83,25 @@ public class CacheResponseHeadersMiddlewareTests
     }
 
     [Fact]
-    public async Task LastModifiedIsSet_SetsCacheControlToNoCache()
+    public async Task Sets_CacheControl_To_NoCache_When_LastModified_Is_Set()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(
-            static ctx => ctx.Response.Headers.LastModified = anyDateTimeOffset.ToString("R"));
+            static ctx => ctx.Response.Headers.LastModified = TestFakes.DateTimeOffset().ToString("R"));
 
         Assert.Equal("no-cache", httpResponseMessage.Headers.CacheControl?.ToString());
     }
 
     [Fact]
-    public async Task RemovesExpires()
+    public async Task Removes_Expires()
     {
         var httpResponseMessage = await RunMiddlewarePipelineAsync(
-            static ctx => ctx.Response.Headers.Expires = anyDateTimeOffset.ToString("R"));
+            static ctx => ctx.Response.Headers.Expires = TestFakes.DateTimeOffset().ToString("R"));
 
         Assert.False(httpResponseMessage.Content.Headers.Contains(HeaderNames.Expires));
     }
 
     [Fact]
-    public async Task RemovesPragma()
+    public async Task Removes_Pragma()
     {
         const string onlyValidPragmaValue = "no-cache";
 
@@ -114,19 +113,21 @@ public class CacheResponseHeadersMiddlewareTests
 
     private static async ValueTask<HttpResponseMessage> RunMiddlewarePipelineAsync(Action<HttpContext>? configureHttpContext = null)
     {
-        var testHost = await TestHostBuilder.StartAsync(applicationBuilder =>
-        {
-            applicationBuilder.UseCacheResponseHeaders();
-
-            if (configureHttpContext is null)
-                return;
-
-            applicationBuilder.Run(ctx =>
+        var testHost = await new TestHostBuilder()
+            .Configure(applicationBuilder =>
             {
-                configureHttpContext(ctx);
-                return Task.CompletedTask;
-            });
-        });
+                applicationBuilder.UseCacheResponseHeaders();
+
+                if (configureHttpContext is null)
+                    return;
+
+                applicationBuilder.Run(ctx =>
+                {
+                    configureHttpContext(ctx);
+                    return Task.CompletedTask;
+                });
+            })
+            .StartAsync();
 
         return await testHost.GetTestClient().GetAsync(new Uri("/", UriKind.Relative));
     }

@@ -1,11 +1,9 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes
 
 namespace Serpent5.AspNetCore.Authentication;
 
@@ -28,7 +26,7 @@ internal sealed class DistributedCacheTicketStore : ITicketStore
 
         async Task<string> StoreAsyncInternal()
         {
-            await CacheAsync(sessionKey, authenticationTicket);
+            await CacheAsync(sessionKey, authenticationTicket).ConfigureAwait(false);
             return sessionKey;
         }
     }
@@ -42,7 +40,7 @@ internal sealed class DistributedCacheTicketStore : ITicketStore
 
     public async Task<AuthenticationTicket?> RetrieveAsync(string sessionKey)
     {
-        var authenticationTicketAsBytes = await distributedCache.GetAsync(sessionKey);
+        var authenticationTicketAsBytes = await distributedCache.GetAsync(sessionKey).ConfigureAwait(false);
 
         return authenticationTicketAsBytes is null
             ? null

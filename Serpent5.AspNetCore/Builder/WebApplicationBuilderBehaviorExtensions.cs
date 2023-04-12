@@ -1,13 +1,9 @@
-using JetBrains.Annotations;
-using Serpent5.AspNetCore.Builder;
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
-/// <see cref="WebApplicationBuilder"/> extension methods for configuring Behaviors.
+/// <see cref="WebApplicationBuilder" /> extension methods for configuring Behaviors.
 /// </summary>
-[PublicAPI]
 public static class WebApplicationBuilderBehaviorExtensions
 {
     /// <summary>

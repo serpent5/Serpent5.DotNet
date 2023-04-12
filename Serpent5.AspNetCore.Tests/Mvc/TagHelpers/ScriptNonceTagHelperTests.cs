@@ -8,22 +8,36 @@ namespace Serpent5.AspNetCore.Tests.Mvc.TagHelpers;
 public class ScriptNonceTagHelperTests
 {
     [Fact]
-    public async Task AddsNonce()
+    public async Task Sets_Nonce_Attribute()
     {
+        var fakeHttpContext = TestFakes.HttpContext();
+        var nonceValue = fakeHttpContext.GetNonce();
+
         var scriptNonceTagHelper = new ScriptNonceTagHelper
         {
             ViewContext = new ViewContext
             {
-                HttpContext = TestFakes.HttpContext()
+                HttpContext = fakeHttpContext
             }
         };
 
-        var fakeTagHelperContext = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), string.Empty);
-        var fakeTagHelperOutput = new TagHelperOutput(string.Empty, new TagHelperAttributeList(), (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
+        var fakeTagHelperOutput = CreateFakeTagHelperOutput();
 
-        await scriptNonceTagHelper.ProcessAsync(fakeTagHelperContext, fakeTagHelperOutput);
+        await scriptNonceTagHelper.ProcessAsync(CreateFakeTagHelperContext(), fakeTagHelperOutput);
 
         Assert.True(fakeTagHelperOutput.Attributes.TryGetAttribute("nonce", out var nonceAttributeValue));
-        Assert.Equal(scriptNonceTagHelper.ViewContext.HttpContext.GetNonce(), nonceAttributeValue.Value);
+        Assert.Equal(nonceValue, nonceAttributeValue.Value);
     }
+
+    private static TagHelperContext CreateFakeTagHelperContext()
+        => new(
+            new TagHelperAttributeList(),
+            new Dictionary<object, object>(),
+            string.Empty);
+
+    private static TagHelperOutput CreateFakeTagHelperOutput()
+        => new(
+            string.Empty,
+            new TagHelperAttributeList(),
+            (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
 }

@@ -1,6 +1,4 @@
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -12,7 +10,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// <see cref="IServiceCollection" /> extension methods for using <see cref="ITicketStore" /> with <see cref="IDistributedCache" />.
 /// </summary>
-[PublicAPI]
 public static class DistributedCacheTicketStoreExtensions
 {
     /// <summary>
@@ -49,4 +46,3 @@ public static class DistributedCacheTicketStoreExtensions
         return serviceCollection;
     }
 }
-

@@ -1,67 +1,32 @@
 using System.Globalization;
-using System.Net;
-using System.Text;
-using AngleSharp;
-using AngleSharp.Html;
-using AngleSharp.Html.Parser;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Serpent5.AspNetCore.Builder;
-using Yarp.ReverseProxy.Forwarder;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace Serpent5.AspNetCore.Controllers;
+
+using static MediaTypeNames;
 
 [Route("/StatusCodes/{statusCode:int}")]
 [AllowAnonymous]
 [ApiExplorerSettings(IgnoreApi = true)]
 public sealed class StatusCodesController : Controller
 {
-    private static readonly MediaTypeHeaderValue jsonMediaTypeHeaderValue = new("application/json");
-    private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new("text/html");
+    private static readonly MediaTypeHeaderValue jsonMediaTypeHeaderValue = new(Application.Json);
+    private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new(Text.Html);
 
-    private static readonly Lazy<HttpMessageInvoker> lazyHttpMessageInvoker =
-        new(CreateHttpMessageInvoker, LazyThreadSafetyMode.ExecutionAndPublication);
-
-    private static readonly HtmlMarkupFormatter htmlMarkupFormatter = new MinifyMarkupFormatter
-    {
-        ShouldKeepStandardElements = true
-    };
-
-    // ReSharper disable once InconsistentNaming
-    private readonly ClientUIBehaviorOptions clientUIBehaviorOptions;
-    private readonly IWebHostEnvironment webHostEnvironment;
-    private readonly IMemoryCache? memoryCache;
-    private readonly IHttpForwarder? httpForwarder;
     private readonly IViewEngine? viewEngine;
 
-    public StatusCodesController(
-        // ReSharper disable once InconsistentNaming
-        IOptions<ClientUIBehaviorOptions> clientUIBehaviorOptionsAccessor,
-        IWebHostEnvironment webHostEnvironment,
-        IMemoryCache? memoryCache = null,
-        IHttpForwarder? httpForwarder = null,
-        // ReSharper disable once SuggestBaseTypeForParameterInConstructor
-        // Specific type required for DI resolution.
-        ICompositeViewEngine? compositeViewEngine = null)
-    {
-        ArgumentNullException.ThrowIfNull(clientUIBehaviorOptionsAccessor);
-        ArgumentNullException.ThrowIfNull(webHostEnvironment);
+    public StatusCodesController(ICompositeViewEngine? compositeViewEngine = null)
+        => viewEngine = compositeViewEngine;
 
-        clientUIBehaviorOptions = clientUIBehaviorOptionsAccessor.Value;
-        (this.webHostEnvironment, this.memoryCache, this.httpForwarder, viewEngine) = (webHostEnvironment, memoryCache, httpForwarder, compositeViewEngine);
-    }
-
-    public async Task<IActionResult> Index(int statusCode)
+    public IActionResult Index(int statusCode)
     {
         var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 
@@ -75,8 +40,7 @@ public sealed class StatusCodesController : Controller
         }
         else
         {
-            // This endpoint has been requested outside of UseStatusCodePagesWithReExecute, so let's hide it with a 404.
-            statusCode = 404;
+            statusCode = StatusCodes.Status404NotFound;
         }
 
         var mediaTypeHeaderValues = MediaTypeHeaderValue.ParseList(Request.Headers.Accept);
@@ -84,81 +48,16 @@ public sealed class StatusCodesController : Controller
         if (mediaTypeHeaderValues.Any(x => x.IsSubsetOf(jsonMediaTypeHeaderValue)))
             return Problem(statusCode: statusCode);
 
-        if (httpForwarder is not null && clientUIBehaviorOptions.ServerAddress is not null)
-        {
-            if (await ForwardRequestAsync(clientUIBehaviorOptions.ServerAddress) is { } actionResult)
-                return actionResult;
-        }
-
-        // ReSharper disable once InvertIf
         if (mediaTypeHeaderValues.Any(x => x.IsSubsetOf(htmlMediaTypeHeaderValue)))
         {
-            if (statusCode == 404 && (statusCodeReExecuteFeature is null || Path.GetExtension(statusCodeReExecuteFeature.OriginalPath).Length == 0))
-            {
-                if (await GetNotFoundContentAsync() is { } contentResult)
-                    return contentResult;
-            }
-
-            if (GetView(statusCode, statusCodeReExecuteFeature) is { } viewResult)
+            if (FindView(statusCode, statusCodeReExecuteFeature) is { } viewResult)
                 return viewResult;
         }
 
         return StatusCode(statusCode);
     }
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
-    private static HttpMessageInvoker CreateHttpMessageInvoker()
-        => new(new SocketsHttpHandler
-        {
-            AllowAutoRedirect = false,
-            AutomaticDecompression = DecompressionMethods.None,
-            UseCookies = false,
-            UseProxy = false
-        });
-#pragma warning restore CA2000 // Dispose objects before losing scope
-
-    private async Task<IActionResult?> ForwardRequestAsync(Uri serverAddress)
-    {
-        // https://github.com/microsoft/reverse-proxy/blob/a4febbb51a5cc3431b84d0a28a9ce0eaf30a42d9/src/ReverseProxy/Forwarder/RequestUtilities.cs#L411
-        Response.StatusCode = StatusCodes.Status200OK;
-
-        var forwarderError = await httpForwarder!.SendAsync(HttpContext, serverAddress.AbsoluteUri, lazyHttpMessageInvoker.Value);
-
-        if (forwarderError is ForwarderError.None)
-            return new EmptyResult();
-
-        if (HttpContext.Features.Get<IForwarderErrorFeature>()?.Exception is { } ex and not OperationCanceledException)
-            throw ex;
-
-        return HttpContext.Response.HasStarted ? new EmptyResult() : StatusCode(500);
-    }
-
-    private async Task<ContentResult?> GetNotFoundContentAsync()
-    {
-        if (webHostEnvironment.WebRootFileProvider.GetFileInfo("index.html") is not { Exists: true } fileInfo)
-            return null;
-
-        if (memoryCache is null)
-            return null;
-
-        var htmlDocument = (await memoryCache.GetOrCreateAsync($"Serpent5.File:{fileInfo.Name}", async _ =>
-        {
-            await using var fileStream = fileInfo.CreateReadStream();
-            return await new HtmlParser().ParseDocumentAsync(fileStream);
-        }))!;
-
-        if (!webHostEnvironment.IsDevelopment())
-        {
-            htmlDocument.Scripts.ToList()
-                .ForEach(x => x.SetAttribute("nonce", HttpContext.GetNonce()));
-        }
-
-        var contentResult = Content(htmlDocument.ToHtml(htmlMarkupFormatter), htmlDocument.ContentType, Encoding.GetEncoding(htmlDocument.CharacterSet));
-        contentResult.StatusCode = 200;
-        return contentResult;
-    }
-
-    private ViewResult? GetView(int statusCode, IStatusCodeReExecuteFeature? statusCodeReExecuteFeature)
+    private ViewResult? FindView(int statusCode, IStatusCodeReExecuteFeature? statusCodeReExecuteFeature)
     {
         if (viewEngine is null)
             return null;
@@ -172,8 +71,17 @@ public sealed class StatusCodesController : Controller
         if (viewNameCandidates.FirstOrDefault(x => viewEngine.FindView(ControllerContext, x, false).Success) is not { } viewName)
             return null;
 
-        var viewResult = View(viewName, statusCodeReExecuteFeature);
+        var viewResult = View(
+            viewName,
+            statusCodeReExecuteFeature ?? new StatusCodeReExecuteFeature
+            {
+                OriginalPathBase = Request.PathBase,
+                OriginalPath = Request.Path,
+                OriginalQueryString = Request.QueryString.Value
+            });
+
         viewResult.StatusCode = statusCode;
+
         return viewResult;
     }
 }

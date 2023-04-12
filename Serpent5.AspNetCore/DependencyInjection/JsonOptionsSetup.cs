@@ -2,9 +2,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 
-namespace Serpent5.AspNetCore.Builder.Options;
+// ReSharper disable RedundantNameQualifier
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 
-internal class JsonOptionsSetup : IConfigureOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>, IConfigureOptions<Microsoft.AspNetCore.Mvc.JsonOptions>
+internal class JsonOptionsSetup :
+    IConfigureOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>,
+    IConfigureOptions<Microsoft.AspNetCore.Mvc.JsonOptions>
 {
     public void Configure(Microsoft.AspNetCore.Http.Json.JsonOptions jsonOptions)
         => ConfigureJsonSerializerOptions(jsonOptions.SerializerOptions);

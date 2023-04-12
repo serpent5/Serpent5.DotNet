@@ -1,12 +1,12 @@
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
-namespace Serpent5.AspNetCore.Mvc.ApplicationModels;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 internal sealed class RemoveIndexPageRouteModelConvention : IPageRouteModelConvention
 {
     private static readonly Regex endsWithIndex = new(
-        @"^Index$|\/Index$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        @"^Index$|\/Index$", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
     /// <inheritdoc />
     public void Apply(PageRouteModel pageRouteModel)

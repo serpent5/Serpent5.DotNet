@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <Using Include="Moq" />
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>

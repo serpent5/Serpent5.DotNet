@@ -1,19 +1,17 @@
-using JetBrains.Annotations;
-using Serpent5.Core.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 // ReSharper disable once CheckNamespace
 namespace System.Text.Json;
 
 /// <summary>
-///
+/// Extensions for <see cref="JsonSerializerOptions" />.
 /// </summary>
-[PublicAPI]
 public static class JsonSerializerOptionsExtensions
 {
     /// <summary>
-    /// Trims <see cref="string" />s before reading/writing.
+    /// Adds a <see cref="JsonConverter" /> that trims <see cref="string" />s before reading/writing.
     /// </summary>
-    /// <remarks><c>null</c>, empty, or whitespace-only strings are set to <c>null</c> when reading.</remarks>
+    /// <remarks>Empty and whitespace-only strings are read as <c>null</c>.</remarks>
     public static void AddStringTrimmingJsonConverter(this JsonSerializerOptions jsonSerializerOptions)
     {
         ArgumentNullException.ThrowIfNull(jsonSerializerOptions);

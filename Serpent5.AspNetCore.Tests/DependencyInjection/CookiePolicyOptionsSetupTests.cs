@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Serpent5.AspNetCore.Builder.Options;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Serpent5.AspNetCore.Tests.Builder.Options;
+namespace Serpent5.AspNetCore.Tests.DependencyInjection;
 
 public class CookiePolicyOptionsSetupTests
 {
     [Fact]
-    public void RequiresSecureCookies()
+    public void Requires_Secure_Cookies()
     {
         var cookiePolicyOptionsSetup = new CookiePolicyOptionsSetup();
         var cookiePolicyOptions = new CookiePolicyOptions();

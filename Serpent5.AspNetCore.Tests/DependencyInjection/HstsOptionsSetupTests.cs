@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.HttpsPolicy;
-using Serpent5.AspNetCore.Builder.Options;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Serpent5.AspNetCore.Tests.Builder.Options;
+namespace Serpent5.AspNetCore.Tests.DependencyInjection;
 
 public class HstsOptionsSetupTests
 {
     [Fact]
-    public void ConfiguresPreloadDeploymentRecommendations() // https://hstspreload.org/#deployment-recommendations
+    public void Configures_Preload_Deployment_Recommendations() // https://hstspreload.org/#deployment-recommendations
     {
         var hstsOptionsSetup = new HstsOptionsSetup();
         var hstsOptions = new HstsOptions();

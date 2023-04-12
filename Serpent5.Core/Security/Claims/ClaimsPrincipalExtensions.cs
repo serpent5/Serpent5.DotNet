@@ -1,12 +1,9 @@
-using JetBrains.Annotations;
-
 // ReSharper disable once CheckNamespace
 namespace System.Security.Claims;
 
 /// <summary>
 /// Extensions for <see cref="ClaimsPrincipal" />.
 /// </summary>
-[PublicAPI]
 public static class ClaimsPrincipalExtensions
 {
     /// <summary>

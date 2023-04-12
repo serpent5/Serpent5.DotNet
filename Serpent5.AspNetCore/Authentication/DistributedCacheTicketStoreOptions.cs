@@ -1,14 +1,12 @@
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Serpent5.AspNetCore.Authentication;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.AspNetCore.Builder;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Provides options for <see cref="DistributedCacheTicketStore" />.
 /// </summary>
-[PublicAPI]
 public sealed class DistributedCacheTicketStoreOptions
 {
     /// <summary>
