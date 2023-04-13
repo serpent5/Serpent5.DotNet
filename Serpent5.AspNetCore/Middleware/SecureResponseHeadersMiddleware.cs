@@ -27,7 +27,7 @@ internal sealed class SecureResponseHeadersMiddleware
         httpContext.Response.OnStarting(
             static httpContextAsObject =>
             {
-                var (httpContext, trustedTypesPolicies) = ((HttpContext, IList<string>))httpContextAsObject;
+                var (httpContext, trustedTypesPolicies) = ((HttpContext, ICollection<string>))httpContextAsObject;
                 var httpResponse = httpContext.Response;
                 var httpResponseHeaders = httpResponse.Headers;
 
@@ -39,22 +39,25 @@ internal sealed class SecureResponseHeadersMiddleware
                 // https://web.dev/strict-csp
                 // https://csp.withgoogle.com/docs/strict-csp.html
                 var cspBuilder = new StringBuilder("base-uri 'self'; frame-ancestors 'none'; object-src 'none'; ");
+                var cspTrustedTypesPolicies = "'none'";
+                var cultureInfo = CultureInfo.InvariantCulture;
 
                 cspBuilder.Append("script-src ");
 
                 if (httpContext.TryGetNonce(out var nonceValue))
                 {
-                    cspBuilder.Append(CultureInfo.InvariantCulture, $"'strict-dynamic' 'nonce-{nonceValue}' 'unsafe-inline' https:");
+                    cspBuilder.Append(cultureInfo, $"'strict-dynamic' 'nonce-{nonceValue}' 'unsafe-inline' https:");
 
                     if (trustedTypesPolicies.Count > 0)
-                        cspBuilder.Append(CultureInfo.InvariantCulture, $"; trusted-types '{string.Join("', '", trustedTypesPolicies.ToHashSet())}'");
+                        cspTrustedTypesPolicies = string.Join(' ', trustedTypesPolicies);
                 }
                 else
                 {
                     cspBuilder.Append("'none'");
                 }
 
-                cspBuilder.Append("; require-trusted-types-for 'script'");
+                cspBuilder.Append(cultureInfo, $"; trusted-types {cspTrustedTypesPolicies}; ");
+                cspBuilder.Append("require-trusted-types-for 'script'");
 
                 httpResponse.Headers["Content-Security-Policy"] = cspBuilder.ToString();
 

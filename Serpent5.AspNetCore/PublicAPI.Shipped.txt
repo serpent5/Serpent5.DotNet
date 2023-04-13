@@ -6,7 +6,7 @@ Microsoft.AspNetCore.Builder.IWebApplicationBehaviorBuilder.ConfigureServices(Sy
 Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
 Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions
 Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions.SecureResponseHeadersOptions() -> void
-Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions.TrustedTypesPolicies.get -> System.Collections.Generic.IList<string!>!
+Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions.TrustedTypesPolicies.get -> System.Collections.Generic.ICollection<string!>!
 Microsoft.AspNetCore.Builder.WebApplicationBehaviorBuilderExtensions
 Microsoft.AspNetCore.Builder.WebApplicationBuilderBehaviorExtensions
 Microsoft.AspNetCore.Mvc.ApplicationModels.RemoveIndexPageRouteModelConventionExtensions
