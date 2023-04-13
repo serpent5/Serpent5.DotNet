@@ -17,10 +17,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="[6.*,7.0)" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="[6.0.16,7.0)" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.*" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Serpent5.AspNetCore\Serpent5.AspNetCore.csproj" />
