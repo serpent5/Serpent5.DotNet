@@ -60,6 +60,7 @@ public static class WebApplicationBuilderBehaviorExtensions
     {
         ArgumentNullException.ThrowIfNull(webApplicationBuilder);
         ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(appName);
+        ArgumentNullException.ThrowIfNull(configureBehaviorBuilder);
 
         var webApplicationBehaviorBuilder = new WebApplicationBehaviorBuilder(appName);
 
