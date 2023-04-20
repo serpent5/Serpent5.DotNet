@@ -1,6 +1,7 @@
 using System.Text;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -34,6 +35,9 @@ internal class SwaggerUIOptionsSetup : IConfigureOptions<SwaggerUIOptions>
             {
                 return indexStream;
             }
+
+            if (httpContext.Features.Get<SecureResponseHeadersFeature>() is { } secureResponseHeadersFeature)
+                secureResponseHeadersFeature.RequireTrustedTypes = false;
 
             return new MemoryStream(Encoding.UTF8.GetBytes(htmlDocument.ToMinifiedHtmlWithScriptNonce(httpContext.GetNonce)));
         };

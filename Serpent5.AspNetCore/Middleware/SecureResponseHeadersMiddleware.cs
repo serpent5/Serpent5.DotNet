@@ -24,6 +24,8 @@ internal sealed class SecureResponseHeadersMiddleware
     {
         ArgumentNullException.ThrowIfNull(httpContext);
 
+        httpContext.Features.Set(new SecureResponseHeadersFeature());
+
         httpContext.Response.OnStarting(
             static httpContextAsObject =>
             {
@@ -56,8 +58,11 @@ internal sealed class SecureResponseHeadersMiddleware
                     cspBuilder.Append("'none'");
                 }
 
-                cspBuilder.Append(cultureInfo, $"; trusted-types {cspTrustedTypesPolicies}; ");
-                cspBuilder.Append("require-trusted-types-for 'script'");
+                if (httpContext.Features.Get<SecureResponseHeadersFeature>()?.RequireTrustedTypes == true)
+                {
+                    cspBuilder.Append(cultureInfo, $"; trusted-types {cspTrustedTypesPolicies}; ");
+                    cspBuilder.Append("require-trusted-types-for 'script'");
+                }
 
                 httpResponse.Headers["Content-Security-Policy"] = cspBuilder.ToString();
 
