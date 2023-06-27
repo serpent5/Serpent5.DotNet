@@ -18,7 +18,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="5.2.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="Yarp.ReverseProxy" Version="2.0.0" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Serpent5.Core\Serpent5.Core.csproj" />
