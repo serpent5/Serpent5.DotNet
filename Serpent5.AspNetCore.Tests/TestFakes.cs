@@ -24,34 +24,39 @@ internal static class TestFakes
 
     public static IHostEnvironment HostEnvironment()
     {
-        var hostEnvironment = Mock.Of<IHostEnvironment>();
-        hostEnvironment.EnvironmentName = Environments.Production;
-        return hostEnvironment;
+        var fakeEnvironment = A.Fake<IHostEnvironment>();
+        fakeEnvironment.EnvironmentName = Environments.Production;
+        return fakeEnvironment;
     }
 
     /// <returns>An <see cref="IOptionsMonitor{TOptions}" /> that returns <paramref name="optionsValue" /> or its <c>default</c>.</returns>
     public static IOptionsMonitor<T> OptionsMonitor<T>(T? optionsValue = null)
         where T : class, new()
     {
-        var mockOptionsMonitor = new Mock<IOptionsMonitor<T>>();
-
-        mockOptionsMonitor.SetupGet(x => x.CurrentValue)
-            .Returns(optionsValue ?? new T());
-
-        return mockOptionsMonitor.Object;
+        var fakeOptionsMonitor = A.Fake<IOptionsMonitor<T>>();
+        A.CallTo(() => fakeOptionsMonitor.CurrentValue).Returns(optionsValue ?? new T());
+        return fakeOptionsMonitor;
     }
 
     /// <returns>
     /// An implementation of <see cref="IFileInfo" /> with the specified <paramref name="fileName" />.
     /// </returns>
     public static IFileInfo FileInfo(string? fileName = null)
-        => Mock.Of<IFileInfo>(x => x.Name == fileName);
+    {
+        var fakeFileInfo = A.Fake<IFileInfo>();
+        A.CallTo<string?>(() => fakeFileInfo.Name).Returns(fileName);
+        return fakeFileInfo;
+    }
 
     /// <returns>
     /// An implementation of <see cref="IHttpContextAccessor" /> that returns the specified <paramref name="httpContext" />.
     /// </returns>
     public static IHttpContextAccessor HttpContextAccessor(HttpContext httpContext)
-        => Mock.Of<IHttpContextAccessor>(x => x.HttpContext == httpContext);
+    {
+        var fakeHttpContextAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => fakeHttpContextAccessor.HttpContext).Returns(httpContext);
+        return fakeHttpContextAccessor;
+    }
 
     /// <returns>
     /// An implementation of <see cref="Microsoft.AspNetCore.Http.HttpContext" />.

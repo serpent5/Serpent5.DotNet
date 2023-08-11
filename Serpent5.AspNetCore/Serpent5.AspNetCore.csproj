@@ -8,17 +8,17 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.1" />
-    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+    <PackageReference Include="AngleSharp" Version="1.0.4" />
+    <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="5.2.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="Yarp.ReverseProxy" Version="2.0.0" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Serpent5.Core\Serpent5.Core.csproj" />

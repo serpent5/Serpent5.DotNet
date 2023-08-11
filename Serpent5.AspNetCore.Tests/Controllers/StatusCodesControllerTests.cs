@@ -179,15 +179,14 @@ public class StatusCodesControllerTests
 
     private static ICompositeViewEngine CreateFakeCompositeViewEngine(params string[] viewNames)
     {
-        var mockCompositeViewEngine = new Mock<ICompositeViewEngine>();
+        var fakeCompositeViewEngine = A.Fake<ICompositeViewEngine>();
 
-        mockCompositeViewEngine
-            .Setup(x => x.FindView(It.IsAny<ControllerContext>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns<ControllerContext, string, bool>((_, viewName, _) =>
+        A.CallTo(() => fakeCompositeViewEngine.FindView(A<ActionContext>._, A<string>._, A<bool>._))
+            .ReturnsLazily<ViewEngineResult, ActionContext, string, bool>((_, viewName, _) =>
                 viewNames.Contains(viewName)
-                    ? ViewEngineResult.Found(viewName, Mock.Of<IView>())
+                    ? ViewEngineResult.Found(viewName, A.Fake<IView>())
                     : ViewEngineResult.NotFound(viewName, Enumerable.Empty<string>()));
 
-        return mockCompositeViewEngine.Object;
+        return fakeCompositeViewEngine;
     }
 }
