@@ -7,6 +7,8 @@ Microsoft.AspNetCore.Builder.SecureResponseHeadersMiddlewareExtensions
 Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions
 Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions.AddTrustedTypesPolicies(string! trustedTypesPolicy, params string![]! trustedTypesPolicies) -> void
 Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions.SecureResponseHeadersOptions() -> void
+Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions.UnsafeEval.get -> bool
+Microsoft.AspNetCore.Builder.SecureResponseHeadersOptions.UnsafeEval.set -> void
 Microsoft.AspNetCore.Builder.WebApplicationBehaviorBuilderExtensions
 Microsoft.AspNetCore.Builder.WebApplicationBuilderBehaviorExtensions
 Microsoft.AspNetCore.Mvc.ApplicationModels.RemoveIndexPageRouteModelConventionExtensions

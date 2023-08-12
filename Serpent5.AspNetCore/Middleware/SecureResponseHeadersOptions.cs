@@ -1,4 +1,5 @@
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
@@ -6,6 +7,11 @@ namespace Microsoft.AspNetCore.Builder;
 /// </summary>
 public sealed class SecureResponseHeadersOptions
 {
+    /// <summary>
+    /// Gets or sets whether to include 'unsafe-eval' in the CSP's script-src directives.
+    /// </summary>
+    public bool UnsafeEval { get; set; }
+
     internal ICollection<string> TrustedTypesPolicies { get; } = new SortedSet<string>();
 
     /// <summary>
