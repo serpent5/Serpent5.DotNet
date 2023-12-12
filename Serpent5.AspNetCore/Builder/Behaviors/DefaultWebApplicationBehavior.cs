@@ -17,7 +17,7 @@ internal class DefaultWebApplicationBehavior : WebApplicationBehavior
 
     public DefaultWebApplicationBehavior(string appName)
     {
-        ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(appName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(appName);
 
         this.appName = appName;
     }

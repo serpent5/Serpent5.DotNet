@@ -8,8 +8,8 @@ namespace Serpent5.AspNetCore.Tests;
 
 internal sealed class TestHostBuilder
 {
-    private readonly List<Action<IServiceCollection>> configureServicesDelegates = new();
-    private readonly List<Action<IApplicationBuilder>> configureDelegates = new();
+    private readonly List<Action<IServiceCollection>> configureServicesDelegates = [];
+    private readonly List<Action<IApplicationBuilder>> configureDelegates = [];
 
     public TestHostBuilder ConfigureServices(Action<IServiceCollection> configureServicesDelegate)
     {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Serpent5.AspNetCore.Mvc.TagHelpers;
 
 /// <summary>
-/// An <see cref="ITagHelper" /> implementation that adds a <c>nonce</c> to &lt;script&gt; elements.
+/// A <see cref="ITagHelper" /> implementation that adds a <c>nonce</c> to &lt;script&gt; elements.
 /// </summary>
 [HtmlTargetElement("script")]
 public sealed class ScriptNonceTagHelper : TagHelper

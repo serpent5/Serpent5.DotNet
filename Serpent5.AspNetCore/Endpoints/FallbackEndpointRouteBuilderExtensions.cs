@@ -1,7 +1,7 @@
-using System.Net.Mime;
 using System.Text;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -9,14 +9,15 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
 using Yarp.ReverseProxy.Forwarder;
 
+using static System.Net.Mime.MediaTypeNames;
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
-
-using static MediaTypeNames;
 
 /// <summary>
 /// <see cref="IEndpointRouteBuilder"/> extension methods for adding fallback endpoints.
 /// </summary>
+[PublicAPI]
 public static class FallbackEndpointRouteBuilderExtensions
 {
     private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new(Text.Html);
@@ -26,11 +27,11 @@ public static class FallbackEndpointRouteBuilderExtensions
     /// </summary>
     /// <param name="endpointRouteBuilder">The <see cref="IEndpointRouteBuilder"/> to add the endpoint to.</param>
     /// <param name="serverAddress">The absolute URL of the server.</param>
-    /// <returns>An <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
+    /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
     public static IEndpointConventionBuilder MapFallbackToServer(this IEndpointRouteBuilder endpointRouteBuilder, string serverAddress)
     {
         ArgumentNullException.ThrowIfNull(endpointRouteBuilder);
-        ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(serverAddress);
+        ArgumentException.ThrowIfNullOrWhiteSpace(serverAddress);
 
         return endpointRouteBuilder
             .MapForwarder("{**path}", serverAddress, ForwarderRequestConfig.Empty, new FallbackHttpTransformer())
@@ -41,7 +42,7 @@ public static class FallbackEndpointRouteBuilderExtensions
     /// Adds a fallback endpoint to the <see cref="IEndpointRouteBuilder" /> that serves the contents of <c>index.html</c>.
     /// </summary>
     /// <param name="endpointRouteBuilder">The <see cref="IEndpointRouteBuilder"/> to add the endpoint to.</param>
-    /// <returns>An <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
+    /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
     // ReSharper disable once InconsistentNaming
     public static IEndpointConventionBuilder MapFallbackToIndexHTML(this IEndpointRouteBuilder endpointRouteBuilder)
     {

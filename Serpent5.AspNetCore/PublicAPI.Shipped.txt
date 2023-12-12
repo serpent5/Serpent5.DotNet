@@ -23,7 +23,6 @@ Microsoft.Extensions.DependencyInjection.DistributedCacheTicketStoreOptions.Slid
 override Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.Process(Microsoft.AspNetCore.Razor.TagHelpers.TagHelperContext! ctx, Microsoft.AspNetCore.Razor.TagHelpers.TagHelperOutput! tagHelperOutput) -> void
 Serpent5.AspNetCore.Controllers.StatusCodesController
 Serpent5.AspNetCore.Controllers.StatusCodesController.Index(int statusCode) -> Microsoft.AspNetCore.Mvc.IActionResult!
-Serpent5.AspNetCore.Controllers.StatusCodesController.StatusCodesController(Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine? compositeViewEngine = null) -> void
 Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper
 Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.ScriptNonceTagHelper() -> void
 Serpent5.AspNetCore.Mvc.TagHelpers.ScriptNonceTagHelper.ViewContext.get -> Microsoft.AspNetCore.Mvc.Rendering.ViewContext!

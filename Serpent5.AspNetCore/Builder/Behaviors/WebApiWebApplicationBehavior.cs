@@ -6,13 +6,9 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
 
-internal class WebApiWebApplicationBehavior : WebApplicationBehavior
+internal class WebApiWebApplicationBehavior(Action<SwaggerGenOptions>? configureSwagger = null)
+    : WebApplicationBehavior
 {
-    private readonly Action<SwaggerGenOptions>? configureSwaggerDelegate;
-
-    public WebApiWebApplicationBehavior(Action<SwaggerGenOptions>? configureSwagger = null)
-        => configureSwaggerDelegate = configureSwagger;
-
     public override void Configure(WebApplicationBuilder webApplicationBuilder)
     {
         if (webApplicationBuilder.Environment.IsDevelopment())
@@ -31,8 +27,8 @@ internal class WebApiWebApplicationBehavior : WebApplicationBehavior
             ConfigureOptions<SwaggerGenOptions, SwaggerGenOptionsSetup>(webApplicationBuilder);
             ConfigureOptions<SwaggerUIOptions, SwaggerUIOptionsSetup>(webApplicationBuilder);
 
-            if (configureSwaggerDelegate is not null)
-                webApplicationBuilder.Services.Configure(configureSwaggerDelegate);
+            if (configureSwagger is not null)
+                webApplicationBuilder.Services.Configure(configureSwagger);
         }
     }
 }

@@ -1,9 +1,12 @@
+using JetBrains.Annotations;
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
 /// <see cref="WebApplicationBuilder" /> extension methods for configuring Behaviors.
 /// </summary>
+[PublicAPI]
 public static class WebApplicationBuilderBehaviorExtensions
 {
     /// <summary>
@@ -37,10 +40,9 @@ public static class WebApplicationBuilderBehaviorExtensions
         string appName,
         Action<IWebApplicationBehaviorBuilder> configureBehaviorBuilder)
     {
-        return webApplicationBuilder.ConfigureBehavior(appName, (webApplicationBehaviorBuilder, _) =>
-        {
-            configureBehaviorBuilder?.Invoke(webApplicationBehaviorBuilder);
-        });
+        return webApplicationBuilder.ConfigureBehavior(
+            appName,
+            (webApplicationBehaviorBuilder, _) => configureBehaviorBuilder(webApplicationBehaviorBuilder));
     }
 
     /// <summary>
@@ -59,7 +61,7 @@ public static class WebApplicationBuilderBehaviorExtensions
         Action<IWebApplicationBehaviorBuilder, WebApplicationBuilder> configureBehaviorBuilder)
     {
         ArgumentNullException.ThrowIfNull(webApplicationBuilder);
-        ArgumentExceptionExtensions.ThrowIfNullOrWhiteSpace(appName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(appName);
         ArgumentNullException.ThrowIfNull(configureBehaviorBuilder);
 
         var webApplicationBehaviorBuilder = new WebApplicationBehaviorBuilder(appName);

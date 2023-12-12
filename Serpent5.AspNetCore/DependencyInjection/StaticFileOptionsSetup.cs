@@ -9,13 +9,9 @@ using Microsoft.Net.Http.Headers;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
-internal partial class StaticFileOptionsSetup : IConfigureOptions<StaticFileOptions>
+internal partial class StaticFileOptionsSetup(IHostEnvironment hostEnvironment)
+    : IConfigureOptions<StaticFileOptions>
 {
-    private readonly IHostEnvironment hostEnvironment;
-
-    public StaticFileOptionsSetup(IHostEnvironment hostEnvironment)
-        => this.hostEnvironment = hostEnvironment;
-
     public void Configure(StaticFileOptions staticFileOptions)
     {
         var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider
@@ -68,11 +64,6 @@ internal partial class StaticFileOptionsSetup : IConfigureOptions<StaticFileOpti
     private const string angularImmutableFilenameRegexPattern = @"^.+\.[\da-f]{16}\..+";
     private const RegexOptions angularImmutableFilenameRegexOptions = RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant;
 
-#if NET7_0_OR_GREATER
     [GeneratedRegex(angularImmutableFilenameRegexPattern, angularImmutableFilenameRegexOptions)]
     private static partial Regex AngularImmutableFilenameRegex();
-#else
-    private static Regex AngularImmutableFilenameRegex()
-        => new(angularImmutableFilenameRegexPattern, angularImmutableFilenameRegexOptions);
-#endif
 }

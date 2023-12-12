@@ -29,7 +29,7 @@ internal static class TestFakes
         return fakeEnvironment;
     }
 
-    /// <returns>An <see cref="IOptionsMonitor{TOptions}" /> that returns <paramref name="optionsValue" /> or its <c>default</c>.</returns>
+    /// <returns>A <see cref="IOptionsMonitor{TOptions}" /> that returns <paramref name="optionsValue" /> or its <c>default</c>.</returns>
     public static IOptionsMonitor<T> OptionsMonitor<T>(T? optionsValue = null)
         where T : class, new()
     {

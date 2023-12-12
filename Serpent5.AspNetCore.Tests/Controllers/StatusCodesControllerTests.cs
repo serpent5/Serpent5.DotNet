@@ -1,17 +1,15 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Net.Mime;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Serpent5.AspNetCore.Controllers;
 
-namespace Serpent5.AspNetCore.Tests.Controllers;
+using static System.Net.Mime.MediaTypeNames;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
-using static MediaTypeNames;
-using static StatusCodes;
+namespace Serpent5.AspNetCore.Tests.Controllers;
 
 public class StatusCodesControllerTests
 {
@@ -150,12 +148,11 @@ public class StatusCodesControllerTests
     [ExcludeFromCodeCoverage]
     private sealed class TestStatusCodes : IEnumerable<object[]>
     {
-        private static readonly List<object[]> testStatusCodes = new()
-        {
-            new object[] { Status200OK },
-            new object[] { Status400BadRequest },
-            new object[] { Status500InternalServerError }
-        };
+        private static readonly List<object[]> testStatusCodes = [
+            [Status200OK],
+            [Status400BadRequest],
+            [Status500InternalServerError]
+        ];
 
         public IEnumerator<object[]> GetEnumerator() => testStatusCodes.GetEnumerator();
 

@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -5,13 +6,9 @@ using Microsoft.Net.Http.Headers;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
 
-internal sealed class CacheResponseHeadersMiddleware
+internal sealed class CacheResponseHeadersMiddleware(RequestDelegate nextMiddleware)
 {
-    private readonly RequestDelegate nextMiddleware;
-
-    public CacheResponseHeadersMiddleware(RequestDelegate nextMiddleware)
-        => this.nextMiddleware = nextMiddleware;
-
+    [UsedImplicitly]
     public Task InvokeAsync(HttpContext httpContext)
     {
         ArgumentNullException.ThrowIfNull(httpContext);

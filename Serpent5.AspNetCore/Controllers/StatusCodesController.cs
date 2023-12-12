@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -7,24 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Net.Http.Headers;
 
+using static System.Net.Mime.MediaTypeNames;
+
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace Serpent5.AspNetCore.Controllers;
 
-using static MediaTypeNames;
-
 [Route("/StatusCodes/{statusCode:int}")]
 [AllowAnonymous]
 [ApiExplorerSettings(IgnoreApi = true)]
-public sealed class StatusCodesController : Controller
+public sealed class StatusCodesController(ICompositeViewEngine? viewEngine = null)
+    : Controller
 {
     private static readonly MediaTypeHeaderValue jsonMediaTypeHeaderValue = new(Application.Json);
     private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new(Text.Html);
-
-    private readonly IViewEngine? viewEngine;
-
-    public StatusCodesController(ICompositeViewEngine? compositeViewEngine = null)
-        => viewEngine = compositeViewEngine;
 
     public IActionResult Index(int statusCode)
     {
@@ -62,11 +57,10 @@ public sealed class StatusCodesController : Controller
         if (viewEngine is null)
             return null;
 
-        string[] viewNameCandidates =
-        {
+        string[] viewNameCandidates = [
             statusCode.ToString(CultureInfo.InvariantCulture),
             "Default"
-        };
+        ];
 
         if (viewNameCandidates.FirstOrDefault(x => viewEngine.FindView(ControllerContext, x, false).Success) is not { } viewName)
             return null;

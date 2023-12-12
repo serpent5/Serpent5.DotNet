@@ -1,25 +1,22 @@
 using System.Globalization;
-using System.Net.Mime;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
+using static System.Net.Mime.MediaTypeNames;
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
 
-using static MediaTypeNames;
-
-internal sealed class SecureResponseHeadersMiddleware
+internal sealed class SecureResponseHeadersMiddleware(RequestDelegate nextMiddleware, IOptions<SecureResponseHeadersOptions> optionsAccessor)
 {
     private static readonly MediaTypeHeaderValue htmlMediaTypeHeaderValue = new(Text.Html);
 
-    private readonly RequestDelegate nextMiddleware;
-    private readonly SecureResponseHeadersOptions secureResponseHeadersOptions;
+    private readonly SecureResponseHeadersOptions secureResponseHeadersOptions = optionsAccessor.Value;
 
-    public SecureResponseHeadersMiddleware(RequestDelegate nextMiddleware, IOptions<SecureResponseHeadersOptions> optionsAccessor)
-        => (this.nextMiddleware, secureResponseHeadersOptions) = (nextMiddleware, optionsAccessor.Value);
-
+    [UsedImplicitly]
     public Task InvokeAsync(HttpContext httpContext)
     {
         ArgumentNullException.ThrowIfNull(httpContext);

@@ -7,14 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace Serpent5.AspNetCore.Authentication;
 
-internal sealed class DistributedCacheTicketStore : ITicketStore
+internal sealed class DistributedCacheTicketStore(IDistributedCache distributedCache, IOptionsMonitor<DistributedCacheTicketStoreOptions> optionsMonitor)
+    : ITicketStore
 {
-    private readonly IDistributedCache distributedCache;
-    private readonly IOptionsMonitor<DistributedCacheTicketStoreOptions> optionsMonitor;
-
-    public DistributedCacheTicketStore(IDistributedCache distributedCache, IOptionsMonitor<DistributedCacheTicketStoreOptions> optionsMonitor)
-        => (this.distributedCache, this.optionsMonitor) = (distributedCache, optionsMonitor);
-
     public Task<string> StoreAsync(AuthenticationTicket authenticationTicket)
     {
         Span<byte> randomBytes = stackalloc byte[32];

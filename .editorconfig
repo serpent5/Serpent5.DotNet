@@ -2,17 +2,26 @@ root = true
 
 [*]
 charset = utf-8
-end_of_line = crlf
+end_of_line = lf
 indent_size = 2
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.md]
+max_line_length = off
 trim_trailing_whitespace = false
 
 [*.cs]
 indent_size = 4
-csharp_style_namespace_declarations = file_scoped:suggestion
+max_line_length = 160
 dotnet_sort_system_directives_first = true
+csharp_style_namespace_declarations = file_scoped:suggestion
 dotnet_diagnostic.CA1725.severity = none # Parameter names should match base declaration
+
+[**.Tests/**.cs]
+dotnet_diagnostic.CA1034.severity = none # Nested types should not be visible
+dotnet_diagnostic.CA1707.severity = none # Identifiers should not contain underscores
+dotnet_diagnostic.CA1859.severity = none # Use concrete types when possible for improved performance
+dotnet_diagnostic.CA2000.severity = none # Dispose objects before losing scope
+dotnet_diagnostic.CA2007.severity = none # Do not directly await a Task

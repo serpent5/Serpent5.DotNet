@@ -1,13 +1,13 @@
 <Project>
   <PropertyGroup>
     <Authors>Kirk Larkin</Authors>
-    <Copyright>Copyright © $(Authors) 2022</Copyright>
+    <Copyright>Copyright © $(Authors) 2023</Copyright>
     <PackageIcon>serpent5.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/serpent5/Serpent5.DotNet</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

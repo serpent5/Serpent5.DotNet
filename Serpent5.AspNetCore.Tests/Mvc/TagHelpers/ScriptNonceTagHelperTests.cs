@@ -30,14 +30,11 @@ public class ScriptNonceTagHelperTests
     }
 
     private static TagHelperContext CreateFakeTagHelperContext()
-        => new(
-            new TagHelperAttributeList(),
-            new Dictionary<object, object>(),
-            string.Empty);
+        => new([], new Dictionary<object, object>(), string.Empty);
 
     private static TagHelperOutput CreateFakeTagHelperOutput()
         => new(
             string.Empty,
-            new TagHelperAttributeList(),
+            [],
             (_, _) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
 }

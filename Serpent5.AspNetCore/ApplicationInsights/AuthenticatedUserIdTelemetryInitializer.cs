@@ -6,14 +6,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Serpent5.AspNetCore.ApplicationInsights;
 
-internal sealed class AuthenticatedUserIdTelemetryInitializer : TelemetryInitializerBase
+internal sealed class AuthenticatedUserIdTelemetryInitializer(string claimType, IHttpContextAccessor httpContextAccessor)
+    : TelemetryInitializerBase(httpContextAccessor)
 {
-    private readonly string claimType;
-
-    public AuthenticatedUserIdTelemetryInitializer(string claimType, IHttpContextAccessor httpContextAccessor)
-        : base(httpContextAccessor)
-        => this.claimType = claimType;
-
     protected override void OnInitializeTelemetry(HttpContext httpContext, RequestTelemetry requestTelemetry, ITelemetry telemetryItem)
         => telemetryItem.Context.User.AuthenticatedUserId = httpContext.User.FindFirstValue(claimType);
 }

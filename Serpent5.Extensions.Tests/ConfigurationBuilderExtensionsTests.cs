@@ -41,10 +41,9 @@ public class ConfigurationBuilderExtensionsTests
         const string settingName = "commandLineSetting";
         const string settingValue = "commandLineValue";
 
-        var configurationRoot = CreateConfigurationWithHostingDefaults(new[]
-        {
+        var configurationRoot = CreateConfigurationWithHostingDefaults([
             $"--{settingName}={settingValue}"
-        });
+        ]);
 
         Assert.Equal(settingValue, configurationRoot[settingName]);
     }
@@ -84,10 +83,9 @@ public class ConfigurationBuilderExtensionsTests
         try
         {
             const string overrideValue = "commandLineOverrideValue";
-            var configurationRoot = CreateConfigurationWithHostingDefaults(new[]
-            {
+            var configurationRoot = CreateConfigurationWithHostingDefaults([
                 $"--{environmentSettingName}={overrideValue}"
-            });
+            ]);
 
             Assert.Equal(overrideValue, configurationRoot[environmentSettingName]);
         }

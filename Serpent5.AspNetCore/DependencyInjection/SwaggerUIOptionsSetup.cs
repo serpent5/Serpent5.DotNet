@@ -11,15 +11,10 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 namespace Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable once InconsistentNaming
-internal class SwaggerUIOptionsSetup : IConfigureOptions<SwaggerUIOptions>
+internal class SwaggerUIOptionsSetup(IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
+    : IConfigureOptions<SwaggerUIOptions>
 {
     private static readonly HtmlParser htmlParser = new();
-
-    private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly IMemoryCache memoryCache;
-
-    public SwaggerUIOptionsSetup(IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
-        => (this.httpContextAccessor, this.memoryCache) = (httpContextAccessor, memoryCache);
 
     // ReSharper disable once InconsistentNaming
     public void Configure(SwaggerUIOptions swaggerUIOptions)

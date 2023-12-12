@@ -7,7 +7,7 @@ namespace Microsoft.AspNetCore.Mvc.ApplicationModels;
 public static class RemoveIndexPageRouteModelConventionExtensions
 {
     /// <summary>
-    /// Adds an <see cref="IPageRouteModelConvention" /> that removes Razor Pages route templates /Index and */Index.
+    /// Adds a <see cref="IPageRouteModelConvention" /> that removes Razor Pages route templates /Index and */Index.
     /// </summary>
     /// <param name="pageConventionCollection"></param>
     /// <returns>The created <see cref="IPageRouteModelConvention" />.</returns>

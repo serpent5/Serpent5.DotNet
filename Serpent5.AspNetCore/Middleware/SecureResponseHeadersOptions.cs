@@ -1,10 +1,12 @@
-// ReSharper disable once CheckNamespace
+using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
 /// Provides options for <see cref="SecureResponseHeadersMiddleware" />.
 /// </summary>
+[PublicAPI]
 public sealed class SecureResponseHeadersOptions
 {
     /// <summary>

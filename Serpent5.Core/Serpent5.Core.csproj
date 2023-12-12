@@ -4,17 +4,17 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2023.2.0"/>
+    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="Serpent5.AspNetCore.Tests"/>
+    <InternalsVisibleTo Include="Serpent5.AspNetCore.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\"/>
-    <None Include="..\serpent5.png" Pack="true" PackagePath="\" Visible="false"/>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="..\serpent5.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 </Project>

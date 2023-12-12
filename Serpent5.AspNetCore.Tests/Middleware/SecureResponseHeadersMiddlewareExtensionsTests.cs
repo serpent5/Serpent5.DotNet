@@ -1,12 +1,11 @@
-using System.Net.Mime;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Net.Http.Headers;
 
-namespace Serpent5.AspNetCore.Tests.Middleware;
+using static System.Net.Mime.MediaTypeNames;
 
-using static MediaTypeNames;
+namespace Serpent5.AspNetCore.Tests.Middleware;
 
 public class SecureResponseHeadersMiddlewareExtensionsTests
 {
